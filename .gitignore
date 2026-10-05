@@ -1,10 +1,6 @@
-
 target/
 *.class
-*.jar
-!**/.mvn/wrapper/maven-wrapper.jar
 *.log
-
 
 .idea/
 *.iml
@@ -13,20 +9,15 @@ target/
 .project
 .classpath
 .factorypath
-.sts4-cache/
-
 
 .DS_Store
 Thumbs.db
 
 .env
-application-local.yml
-application-local.properties
 
 .gradle/
 local.properties
 build/
-captures/
 *.apk
 *.aab
 *.keystore
