@@ -30,7 +30,7 @@ public class Usuario {
     @Column(name = "email", nullable = false, unique = true, length = 150)
     private String email;
 
-    // Hash BCrypt, nunca la contraseña en texto plano
+
     @Column(name = "password_hash", nullable = false, length = 255)
     private String password;
 
@@ -43,7 +43,6 @@ public class Usuario {
     protected Usuario() {
     }
 
-    /** Crea un usuario nuevo (sin id: lo asigna la BD al guardar). */
     public Usuario(String nombre, String email, String password, Rol rol, LocalDateTime fechaRegistro) {
         this.nombre = nombre;
         this.email = email;
