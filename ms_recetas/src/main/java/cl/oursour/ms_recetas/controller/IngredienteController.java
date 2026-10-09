@@ -2,58 +2,53 @@ package cl.oursour.ms_recetas.controller;
 
 import cl.oursour.ms_recetas.model.Ingrediente;
 import cl.oursour.ms_recetas.service.IngredienteService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/ingredientes")
 public class IngredienteController {
 
-    private final IngredienteService ingredienteService;
+    private final IngredienteService service;
 
-    IngredienteController(IngredienteService ingredienteService) {
-        this.ingredienteService = ingredienteService;
+    IngredienteController(IngredienteService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public ResponseEntity<List<Ingrediente>> listar() {
-        return ResponseEntity.ok(ingredienteService.listar());
+    public List<Ingrediente> listarTodos() {
+        return service.listarTodos();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ingrediente> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(ingredienteService.buscarPorId(id));
+    public Optional<Ingrediente> buscarPorId(@PathVariable Long id) {
+        return service.buscarPorId(id);
     }
 
     @GetMapping("/categoria/{categoria}")
-    public ResponseEntity<List<Ingrediente>> listarPorCategoria(@PathVariable String categoria) {
-        return ResponseEntity.ok(ingredienteService.listarPorCategoria(categoria));
+    public List<Ingrediente> buscarPorCategoria(@PathVariable String categoria) {
+        return service.buscarPorCategoria(categoria);
     }
 
     @PostMapping
-    public ResponseEntity<Ingrediente> guardar(@RequestBody Ingrediente ingrediente) {
-        Ingrediente nuevo = ingredienteService.guardar(ingrediente);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
+    public Ingrediente guardar(@RequestBody Ingrediente ingrediente) {
+        return service.guardar(ingrediente);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Ingrediente> actualizar(@PathVariable Long id,
-                                                  @RequestBody Ingrediente ingrediente) {
-        return ResponseEntity.ok(ingredienteService.actualizar(id, ingrediente));
+    public Ingrediente actualizar(@PathVariable Long id, @RequestBody Ingrediente ingrediente) {
+        return service.actualizar(id, ingrediente);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        ingredienteService.eliminar(id);
-        return ResponseEntity.noContent().build();
+    public void eliminar(@PathVariable Long id) {
+        service.eliminar(id);
     }
 
-    // Lo usarán otros microservicios para comprobar que un ingrediente existe
     @GetMapping("/validar/{id}")
-    public ResponseEntity<Boolean> validar(@PathVariable Long id) {
-        return ResponseEntity.ok(ingredienteService.existe(id));
+    public boolean validarIngrediente(@PathVariable Long id) {
+        return service.validarIngrediente(id);
     }
 }

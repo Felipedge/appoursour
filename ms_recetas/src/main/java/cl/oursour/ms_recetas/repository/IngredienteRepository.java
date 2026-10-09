@@ -8,6 +8,4 @@ import java.util.List;
 public interface IngredienteRepository extends JpaRepository<Ingrediente, Long> {
 
     List<Ingrediente> findByCategoria(String categoria);
-
-    boolean existsByNombreIgnoreCase(String nombre);
-}
+} 
