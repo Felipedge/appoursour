@@ -1,12 +1,19 @@
 package cl.oursour.ms_recetas.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
-@Entity 
+@Entity
 @Table(name = "receta")
 public class Receta {
     @Id
@@ -18,6 +25,10 @@ public class Receta {
     private String pasosPreparacion;
 
     private long idProducto;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "receta", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DetalleReceta> detalles = new ArrayList<>();
 
     public Receta() {
     }
@@ -60,5 +71,26 @@ public class Receta {
 
     public void setIdProducto(long idProducto) {
         this.idProducto = idProducto;
+    }
+
+    public List<DetalleReceta> getDetalles() {
+        return detalles;
+    }
+
+    public void setDetalles(List<DetalleReceta> detalles) {
+        this.detalles.clear();
+        if (detalles != null) {
+            detalles.forEach(this::addDetalle);
+        }
+    }
+
+    public void addDetalle(DetalleReceta d) {
+        d.setReceta(this);
+        this.detalles.add(d);
+    }
+
+    public void removeDetalle(DetalleReceta d) {
+        d.setReceta(null);
+        this.detalles.remove(d);
     }
 }
