@@ -3,10 +3,10 @@ package cl.oursour.ms_catalogo.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import cl.oursour.ms_catalogo.model.Producto;
+import cl.oursour.ms_catalogo.dto.ProductoResponse;
 import cl.oursour.ms_catalogo.repository.ProductoRepository;
-import jakarta.transaction.Transactional;
 
 @Service 
 public class ProductoService {

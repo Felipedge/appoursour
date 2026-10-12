@@ -1,5 +1,7 @@
 package cl.oursour.ms_catalogo.dto;
 
+import java.math.BigDecimal;
+
 import cl.oursour.ms_catalogo.model.Producto;
 
 public record ProductoResponse(
