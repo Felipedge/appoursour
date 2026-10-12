@@ -1,49 +1,58 @@
 package cl.oursour.ms_catalogo.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
-@Entity 
-@Table (name = "producto")
+import java.math.BigDecimal;
+
+/** Tabla producto. activo = false es el borrado lógico. */
+@Entity
+@Table(name = "producto")
 public class Producto {
 
-    @Id 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_producto")
     private Long idProducto;
-    
-    @Column (name = "nombre", nullable = false, length = 100)
-    private String nombre;
 
-    @Column (name = "descripcion", nullable = false, length = 200)
+    @Column(name = "nombre_comercial", nullable = false, length = 150)
+    private String nombreComercial;
+
+    @Column(name = "descripcion", length = 500)
     private String descripcion;
 
-    @Column (name = "precioUnitario", nullable = false)
-    private Integer precioUnitario;
+    @Column(name = "precio_unitario", nullable = false, precision = 10, scale = 2)
+    private BigDecimal precioUnitario;
 
-    @Column (name = "stock", nullable = false)
-    private Integer stock;
+    @Column(name = "stock_simulado", nullable = false)
+    private Integer stockSimulado;
 
-    @Column (name = "estado", nullable = false)
-    private Boolean estado;
+    @Column(name = "activo", nullable = false)
+    private Boolean activo;
+
+    protected Producto() {
+    }
+
+    public Producto(String nombreComercial, String descripcion, BigDecimal precioUnitario, Integer stockSimulado) {
+        this.nombreComercial = nombreComercial;
+        this.descripcion = descripcion;
+        this.precioUnitario = precioUnitario;
+        this.stockSimulado = stockSimulado;
+        this.activo = true;
+    }
+    public void descontarStock(int cantidad) {
+        this.stockSimulado -= cantidad;
+    }
 
     public Long getIdProducto() {
         return idProducto;
     }
 
-    public void setIdProducto(Long idProducto) {
-        this.idProducto = idProducto;
+    public String getNombreComercial() {
+        return nombreComercial;
     }
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setNombreComercial(String nombreComercial) {
+        this.nombreComercial = nombreComercial;
     }
 
     public String getDescripcion() {
@@ -54,27 +63,27 @@ public class Producto {
         this.descripcion = descripcion;
     }
 
-    public Integer getPrecioUnitario() {
+    public BigDecimal getPrecioUnitario() {
         return precioUnitario;
     }
 
-    public void setPrecioUnitario(Integer precioUnitario) {
+    public void setPrecioUnitario(BigDecimal precioUnitario) {
         this.precioUnitario = precioUnitario;
     }
 
-    public Integer getStock() {
-        return stock;
+    public Integer getStockSimulado() {
+        return stockSimulado;
     }
 
-    public void setStock(Integer stock) {
-        this.stock = stock;
+    public void setStockSimulado(Integer stockSimulado) {
+        this.stockSimulado = stockSimulado;
     }
 
-    public Boolean getEstado() {
-        return estado;
+    public Boolean getActivo() {
+        return activo;
     }
 
-    public void setEstado(Boolean estado) {
-        this.estado = estado;
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
     }
 }
