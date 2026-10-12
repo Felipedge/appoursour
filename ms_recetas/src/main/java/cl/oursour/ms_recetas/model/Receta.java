@@ -22,6 +22,43 @@ public class Receta {
     public Receta() {
     }
 
-    
+    public long getIdReceta() {
+        return idReceta;
+    }
 
+    public void setIdReceta(long idReceta) {
+        this.idReceta = idReceta;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public String getPasosPreparacion() {
+        return pasosPreparacion;
+    }
+
+    public void setPasosPreparacion(String pasosPreparacion) {
+        this.pasosPreparacion = pasosPreparacion;
+    }
+
+    public long getIdProducto() {
+        return idProducto;
+    }
+
+    public void setIdProducto(long idProducto) {
+        this.idProducto = idProducto;
+    }
 }
