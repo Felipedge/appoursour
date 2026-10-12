@@ -39,6 +39,11 @@ public class ProductoService {
         return ProductoResponse.desde(productoRepository.save(producto));
     }
 
+    @Transactional(readOnly = true)
+    public List <ProductoResponse> buscarPorIds(List<Long> ids) {
+        return productoRepository.findAllById(ids).stream().map(ProductoResponse::desde)
+                .toList();
+    }
     private Producto buscarActivo(Long idProducto) {
         return productoRepository.findByIdProductoAndActivoTrue(idProducto)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
