@@ -31,15 +31,35 @@ public class DetalleReceta {
     public DetalleReceta() {
     }
 
-    public Long getIdDetalle() { return idDetalle; }
-    public void setIdDetalle(Long idDetalle) { this.idDetalle = idDetalle; }
+    public Long getIdDetalle() {
+        return idDetalle;
+    }
 
-    public Long getIdIngrediente() { return idIngrediente; }
-    public void setIdIngrediente(Long idIngrediente) { this.idIngrediente = idIngrediente; }
+    public void setIdDetalle(Long idDetalle) {
+        this.idDetalle = idDetalle;
+    }
 
-    public int getCantidad() { return cantidad; }
-    public void setCantidad(int cantidad) { this.cantidad = cantidad; }
+    public Long getIdIngrediente() {
+        return idIngrediente;
+    }
 
-    public Receta getReceta() { return receta; }
-    public void setReceta(Receta receta) { this.receta = receta; }
+    public void setIdIngrediente(Long idIngrediente) {
+        this.idIngrediente = idIngrediente;
+    }
+
+    public int getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    public Receta getReceta() {
+        return receta;
+    }
+
+    public void setReceta(Receta receta) {
+        this.receta = receta;
+    }
 }
