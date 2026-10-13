@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import cl.oursour.ms_catalogo.dto.DescuentoStockRequest;
 import cl.oursour.ms_catalogo.dto.ProductoRequest;
 import cl.oursour.ms_catalogo.dto.ProductoResponse;
 import cl.oursour.ms_catalogo.model.Producto;
@@ -38,15 +39,19 @@ public class ProductoService {
                 req.precioUnitario(), req.stockSimulado());
         return ProductoResponse.desde(productoRepository.save(producto));
     }
-
-    @Transactional(readOnly = true)
-    public List <ProductoResponse> buscarPorIds(List<Long> ids) {
-        return productoRepository.findAllById(ids).stream().map(ProductoResponse::desde)
-                .toList();
+    public void descontarStock(DescuentoStockRequest req) {
+        Map<Long, Integer> cantidades = req.items().stream()
+                .collect(Collectors.toMap(i -> i.idProducto(), i -> i.cantidad(), Integer::sum));
     }
-    private Producto buscarActivo(Long idProducto) {
+                
+    @Transactional(readOnly = true)
+    public List <ProductoResponse> buscarPorIds (List<Long> ids) {
+        return productoRepository.findAllById(ids).stream().map(ProductoResponse::desde)
+            .toList();
+    }
+    private Producto buscarActivo (Long idProducto) {
         return productoRepository.findByIdProductoAndActivoTrue(idProducto)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
     }
 
 }
