@@ -1,6 +1,9 @@
 package cl.oursour.ms_catalogo.service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,15 @@ public class ProductoService {
                 .map(ProductoResponse::desde)
                 .toList();
     }
+    @Transactional
+    public ProductoResponse actualizar(Long idProducto, ProductoRequest req) {
+        Producto producto = buscarActivo(idProducto);
+        producto.setNombreComercial(req.nombreComercial().trim());
+        producto.setDescripcion(req.descripcion());
+        producto.setPrecioUnitario(req.precioUnitario());
+        producto.setStockSimulado(req.stockSimulado());
+        return ProductoResponse.desde(producto);
+    }
 
     @Transactional(readOnly = true)
     public ProductoResponse obtener(Long idProducto) {
@@ -39,9 +51,30 @@ public class ProductoService {
                 req.precioUnitario(), req.stockSimulado());
         return ProductoResponse.desde(productoRepository.save(producto));
     }
+    @Transactional
     public void descontarStock(DescuentoStockRequest req) {
         Map<Long, Integer> cantidades = req.items().stream()
                 .collect(Collectors.toMap(i -> i.idProducto(), i -> i.cantidad(), Integer::sum));
+
+        Map<Long, Producto> productos = productoRepository.findParaActualizar(cantidades.keySet()).stream()
+                .collect(Collectors.toMap(p -> p.getIdProducto(), Function.identity()));
+
+        cantidades.forEach((id, cantidad) -> {
+            Producto p = productos.get(id);
+            if (p == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto " + id + " no encontrado");
+            }
+            if (cantidad > p.getStockSimulado()) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Stock insuficiente para "
+                        + p.getNombreComercial() + " (disponible: " + p.getStockSimulado() + ")");
+            }
+        });
+        cantidades.forEach((id, cantidad) -> productos.get(id).descontarStock(cantidad));
+    }
+
+    @Transactional
+    public void eliminar(Long idProducto) {
+        buscarActivo(idProducto).setActivo(false);
     }
                 
     @Transactional(readOnly = true)
