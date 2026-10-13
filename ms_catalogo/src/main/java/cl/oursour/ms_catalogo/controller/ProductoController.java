@@ -1,5 +1,9 @@
 package cl.oursour.ms_catalogo.controller;
 
+import java.util.List;
+
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,5 +23,10 @@ public class ProductoController {
         return productoService.obtener(idProducto);
     }
         
+    @GetMapping
+    public List<ProductoResponse> listar() {
+        return productoService.listar();
+    }
+
     
 }
