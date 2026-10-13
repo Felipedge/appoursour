@@ -6,7 +6,9 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +43,11 @@ public class ProductoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(productoService.crear(req));
     }
 
-    
+    @PutMapping("/{idProducto}")
+    public ProductoResponse actualizar(@RequestHeader(Autorizacion.HEADER_ROL) String rol, @PathVariable Long idProducto, @Valid @RequestBody ProductoRequest req) {
+        Autorizacion.exigirAdmin(rol);
+        return productoService.actualizar(idProducto, req);
+    }
 
 
 
