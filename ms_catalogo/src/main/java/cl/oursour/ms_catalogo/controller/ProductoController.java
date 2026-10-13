@@ -29,7 +29,7 @@ public class ProductoController {
         this.productoService = productoService;
     }
     @GetMapping ("/{idProducto}")
-    public ProductoResponse obtener (Long idProducto) {
+    public ProductoResponse obtener (@PathVariable Long idProducto) {
         return productoService.obtener(idProducto);
     }
         

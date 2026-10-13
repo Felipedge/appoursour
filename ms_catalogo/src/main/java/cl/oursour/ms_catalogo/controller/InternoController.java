@@ -16,7 +16,7 @@ import cl.oursour.ms_catalogo.service.ProductoService;
 import jakarta.validation.Valid;
 
 @RestController 
-@RequestMapping ("/interno/productos")
+@RequestMapping ("/internal/productos")
 public class InternoController {
     private final ProductoService productoService;
 
