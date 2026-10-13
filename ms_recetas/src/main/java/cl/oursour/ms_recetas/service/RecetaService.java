@@ -81,15 +81,15 @@ public class RecetaService {
         repository.deleteById(id);
     }
 
-    private void validarDetalle(DetalleReceta d) {
+      private void validarDetalle(DetalleReceta d) {
         if (d.getIdIngrediente() == null || d.getIdIngrediente() <= 0) {
             throw new IllegalArgumentException("idIngrediente es obligatorio en cada detalle");
         }
         if (!ingredienteService.validarIngrediente(d.getIdIngrediente())) {
             throw new IllegalArgumentException("Ingrediente no existe: " + d.getIdIngrediente());
         }
-        if (d.getCantidad() <= 0) {
-            throw new IllegalArgumentException("cantidad debe ser > 0");
+        if (d.getDosificacion() == null || d.getDosificacion().isBlank()) {
+            throw new IllegalArgumentException("dosificacion es obligatoria en cada detalle");
         }
     }
 }

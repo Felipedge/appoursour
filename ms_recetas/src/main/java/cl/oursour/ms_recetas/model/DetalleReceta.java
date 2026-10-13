@@ -12,7 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "detalle_receta")
+@Table(name = "receta_ingrediente")
 public class DetalleReceta {
 
     @Id
@@ -21,11 +21,11 @@ public class DetalleReceta {
 
     private Long idIngrediente;
 
-    private int cantidad;
-
+    private String dosificacion; 
+    
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receta_id")
+    @JoinColumn(name = "id_receta")
     private Receta receta;
 
     public DetalleReceta() {
@@ -47,12 +47,12 @@ public class DetalleReceta {
         this.idIngrediente = idIngrediente;
     }
 
-    public int getCantidad() {
-        return cantidad;
+    public String getDosificacion() {
+        return dosificacion;
     }
 
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
+    public void setDosificacion(String dosificacion) {
+        this.dosificacion = dosificacion;
     }
 
     public Receta getReceta() {
