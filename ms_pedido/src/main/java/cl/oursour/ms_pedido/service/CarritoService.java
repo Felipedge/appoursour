@@ -40,4 +40,35 @@ public class CarritoService {
             validarProducto(p);
         }
 
+
+        return carritoRepository.save(c);
+    }
+
+    public Optional<Carrito> obtener(Long id) {
+        return carritoRepository.findById(id);
+    }
+
+    public List<Carrito> listar() {
+        return carritoRepository.findAll();
+    }
+
+    @Transactional
+    public Carrito agregarProducto(Long id, CarritoProducto p) {
+        Carrito c = carritoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Carrito no encontrado"));
+        validarProducto(p);
+        c.addProducto(p);
+        return carritoRepository.save(c);
+    }
+
+    private void validarProducto(CarritoProducto p) {
+        if (p.getIdProducto() == null || p.getIdProducto() <= 0) {
+            throw new IllegalArgumentException("idProducto es obligatorio en cada producto");
+        }
+        if (p.getCantidad() <= 0) {
+            throw new IllegalArgumentException("cantidad debe ser > 0");
+        }
+    }
+
+    
     }
