@@ -23,10 +23,8 @@ public class Carrito {
     private long idCarrito;
 
     //usuario dueño del carrito vive en ms_usuario
-    @SuppressWarnings("unused")
     private long idUsuario;
 
-    @SuppressWarnings("unused")
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
 

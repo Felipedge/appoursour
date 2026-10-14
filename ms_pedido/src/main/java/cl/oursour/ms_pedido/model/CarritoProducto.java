@@ -20,10 +20,8 @@ public class CarritoProducto {
     private Long idDetalle;
 
     // Producto del catálogo: vive en MS-Producto, aquí solo se guarda el id
-    @SuppressWarnings("unused")
     private Long idProducto;
 
-    @SuppressWarnings("unused")
     private int cantidad;
 
     @JsonBackReference
@@ -32,6 +30,38 @@ public class CarritoProducto {
     private Carrito carrito;
 
     public CarritoProducto() {
+    }
+
+    public Long getIdDetalle() {
+        return idDetalle;
+    }
+
+    public void setIdDetalle(Long idDetalle) {
+        this.idDetalle = idDetalle;
+    }
+
+    public Long getIdProducto() {
+        return idProducto;
+    }
+
+    public void setIdProducto(Long idProducto) {
+        this.idProducto = idProducto;
+    }
+
+    public int getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    public Carrito getCarrito() {
+        return carrito;
+    }
+
+    public void setCarrito(Carrito carrito) {
+        this.carrito = carrito;
     }
 
 }
