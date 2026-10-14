@@ -38,4 +38,48 @@ public class Carrito {
     public Carrito() {
     }
 
+    public Long getIdCarrito() {
+        return idCarrito;
+    }
+
+    public void setIdCarrito(Long idCarrito) {
+        this.idCarrito = idCarrito;
+    }
+
+    public Long getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(Long idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public List<CarritoProducto> getProductos() {
+        return productos;
+    }
+
+    public void setProductos(List<CarritoProducto> productos) {
+        this.productos.clear();
+        if (productos != null) {
+            productos.forEach(this::addProducto);
+        }
+    }
+
+    public void addProducto(CarritoProducto p) {
+        p.setCarrito(this);
+        this.productos.add(p);
+    }
+
+    public void removeProducto(CarritoProducto p) {
+        p.setCarrito(null);
+        this.productos.remove(p);
+    }
 }
