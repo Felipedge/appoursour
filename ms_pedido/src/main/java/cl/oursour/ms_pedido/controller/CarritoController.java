@@ -46,4 +46,32 @@ public class CarritoController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
+
+    @PatchMapping("/{id}/productos/{idDetalle}")
+    public ResponseEntity<?> cambiarCantidad(@PathVariable Long id, @PathVariable Long idDetalle,
+                                             @RequestBody CarritoProducto producto) {
+        try {
+            return ResponseEntity.ok(service.cambiarCantidad(id, idDetalle, producto.getCantidad()));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}/productos/{idDetalle}")
+    public ResponseEntity<?> eliminarProducto(@PathVariable Long id, @PathVariable Long idDetalle) {
+        try {
+            return ResponseEntity.ok(service.eliminarProducto(id, idDetalle));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}/productos")
+    public ResponseEntity<?> vaciar(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(service.vaciar(id));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
 }

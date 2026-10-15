@@ -1,4 +1,3 @@
-
 package cl.oursour.ms_pedido.service;
 
 import cl.oursour.ms_pedido.model.Carrito;
@@ -10,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 
 @Service
 public class CarritoService {
@@ -40,7 +38,6 @@ public class CarritoService {
             validarProducto(p);
         }
 
-
         return carritoRepository.save(c);
     }
 
@@ -54,11 +51,48 @@ public class CarritoService {
 
     @Transactional
     public Carrito agregarProducto(Long id, CarritoProducto p) {
-        Carrito c = carritoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Carrito no encontrado"));
+        Carrito c = buscarCarrito(id);
         validarProducto(p);
         c.addProducto(p);
         return carritoRepository.save(c);
+    }
+
+    @Transactional
+    public Carrito eliminarProducto(Long id, Long idDetalle) {
+        Carrito c = buscarCarrito(id);
+        CarritoProducto p = buscarLinea(c, idDetalle);
+        c.removeProducto(p);
+        return carritoRepository.save(c);
+    }
+
+    @Transactional
+    public Carrito cambiarCantidad(Long id, Long idDetalle, int cantidad) {
+        if (cantidad <= 0) {
+            throw new IllegalArgumentException("cantidad debe ser > 0");
+        }
+        Carrito c = buscarCarrito(id);
+        CarritoProducto p = buscarLinea(c, idDetalle);
+        p.setCantidad(cantidad);
+        return carritoRepository.save(c);
+    }
+
+    @Transactional
+    public Carrito vaciar(Long id) {
+        Carrito c = buscarCarrito(id);
+        new ArrayList<>(c.getProductos()).forEach(c::removeProducto);
+        return carritoRepository.save(c);
+    }
+
+    private Carrito buscarCarrito(Long id) {
+        return carritoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Carrito no encontrado"));
+    }
+
+    private CarritoProducto buscarLinea(Carrito c, Long idDetalle) {
+        return c.getProductos().stream()
+                .filter(x -> x.getIdDetalle().equals(idDetalle))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado en el carrito"));
     }
 
     private void validarProducto(CarritoProducto p) {
@@ -69,6 +103,4 @@ public class CarritoService {
             throw new IllegalArgumentException("cantidad debe ser > 0");
         }
     }
-
-    
-    }
+}

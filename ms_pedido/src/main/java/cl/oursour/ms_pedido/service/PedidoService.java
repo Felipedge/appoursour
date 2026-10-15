@@ -41,10 +41,6 @@ public class PedidoService {
         List<PedidoProducto> incoming = new ArrayList<>(productos);
         p.getProductos().clear();
         incoming.forEach(p::addProducto);
-    
-        List<PedidoProducto> incoming = new ArrayList<>(productos);
-        p.getProductos().clear();
-        incoming.forEach(p::addProducto);
 
         int subtotal = 0;
         for (PedidoProducto d : p.getProductos()) {
@@ -104,9 +100,6 @@ public class PedidoService {
         }
 
     }
-
-    
-
 
   
 }

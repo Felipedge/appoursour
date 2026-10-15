@@ -29,4 +29,28 @@ public class PedidoController {
         return service.obtener(id);
     }
 
+     @PostMapping
+    public ResponseEntity<?> crear(@RequestBody Pedido pedido) {
+        try {
+            return ResponseEntity.ok(service.crearPedido(pedido));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<?> actualizarEstado(@PathVariable Long id, @RequestBody String nuevoEstado) {
+        try {
+            return ResponseEntity.ok(service.actualizarEstado(id, nuevoEstado));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
+    }
+
+
+    @GetMapping("/validar/{id}")
+    public boolean validarPedido(@PathVariable Long id) {
+        return service.validarPedido(id);
+    }
+
 }
