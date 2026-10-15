@@ -1,8 +1,4 @@
-package cl.oursour.ms_metricas.service;
 
-public class MetricaService {
-
-}
 package cl.oursour.ms_metricas.service;
 
 import cl.oursour.ms_metricas.client.RemotoClient;
