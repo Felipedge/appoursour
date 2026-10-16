@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-/** Uso interno (ms-pedido): descuenta el stock de un pedido pagado. Todo o nada. */
 public record DescuentoStockRequest(
         @NotEmpty(message = "Debe venir al menos un ítem")
         List<@Valid Item> items
