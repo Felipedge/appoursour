@@ -5,9 +5,9 @@ import java.math.BigDecimal;
 import cl.oursour.ms_catalogo.model.Producto;
 
 public record ProductoResponse(
-    long idProducto,
+    Long idProducto,
     String nombreComercial,
-    String Descripcion,
+    String descripcion,
     BigDecimal precioUnitario,
     Integer stockSimulado,
     Boolean activo
