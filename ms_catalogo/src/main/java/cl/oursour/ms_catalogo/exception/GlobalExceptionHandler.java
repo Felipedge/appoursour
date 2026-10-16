@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<ErrorResponse> sinUsuario(MissingRequestHeaderException ex) {
         return construir(HttpStatus.UNAUTHORIZED,
-                "Falta la identificación del usuario: accede a través del gateway con un token válido", null);
+                "Falta la identificación del usuario: envía un token válido", null);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)

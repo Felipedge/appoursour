@@ -7,6 +7,7 @@ public final class Autorizacion {
 
     public static final String HEADER_USUARIO = "X-User-Id";
     public static final String HEADER_ROL = "X-User-Rol";
+    public static final String HEADER_CLAVE_INTERNA = "X-Internal-Key";
 
 
     private Autorizacion() {
