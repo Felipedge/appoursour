@@ -2,6 +2,7 @@ package cl.oursour.ms_metricas.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import cl.oursour.ms_metricas.dto.ConteoId;
+import cl.oursour.ms_metricas.security.Autorizacion;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -40,10 +41,11 @@ public class RemotoClient {
 
     public RemotoClient(@Value("${servicios.recetas.url}") String urlRecetas,
                         @Value("${servicios.catalogo.url}") String urlCatalogo,
-                        @Value("${servicios.pedido.url}") String urlPedido) {
-        this.recetas = crear(urlRecetas);
-        this.catalogo = crear(urlCatalogo);
-        this.pedido = crear(urlPedido);
+                        @Value("${servicios.pedido.url}") String urlPedido,
+                        @Value("${servicios.clave-interna}") String claveInterna) {
+        this.recetas = crear(urlRecetas, claveInterna);
+        this.catalogo = crear(urlCatalogo, claveInterna);
+        this.pedido = crear(urlPedido, claveInterna);
     }
 
     public Map<Long, String> nombresIngredientes(Collection<Long> ids) {
@@ -104,10 +106,12 @@ public class RemotoClient {
         }
     }
 
-    private static RestClient crear(String url) {
+    private static RestClient crear(String url, String claveInterna) {
         var fabrica = new SimpleClientHttpRequestFactory();
         fabrica.setConnectTimeout(Duration.ofSeconds(2));
         fabrica.setReadTimeout(Duration.ofSeconds(5));
-        return RestClient.builder().baseUrl(url).requestFactory(fabrica).build();
+        return RestClient.builder().baseUrl(url).requestFactory(fabrica)
+                .defaultHeader(Autorizacion.HEADER_CLAVE_INTERNA, claveInterna)
+                .build();
     }
 }
