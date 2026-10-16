@@ -2,7 +2,6 @@ package cl.oursour.ms_pago.controller;
 
 import cl.oursour.ms_pago.model.Pago;
 import cl.oursour.ms_pago.service.PagoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +28,18 @@ public class PagoController {
         return service.buscarPorId(id);
     }
 
-    
 
+    @PostMapping
+    public ResponseEntity<?> procesarPago(@RequestBody Pago pago) {
+        try {
+            return ResponseEntity.ok(service.procesarPago(pago));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public void eliminar(@PathVariable Long id) {
+        service.eliminar(id);
+    }
 }
