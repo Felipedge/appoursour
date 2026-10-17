@@ -13,7 +13,7 @@ import java.util.Optional;
 public class PagoService {
 
     // Cambia el puerto por el que use tu ms_pedido
-    private static final String PEDIDO_VALIDAR_URL = "http://localhost:8092/pedidos/validar/";
+   private static final String PEDIDO_VALIDAR_URL = "http://localhost:8085/pedidos/validar/";
 
     private final PagoRepository repository;
 
