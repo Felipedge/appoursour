@@ -1,5 +1,6 @@
 package cl.oursour.ms_recetas.service;
 
+import cl.oursour.ms_recetas.dto.RecetaResumen;
 import cl.oursour.ms_recetas.model.DetalleReceta;
 import cl.oursour.ms_recetas.model.Receta;
 import cl.oursour.ms_recetas.repository.RecetaRepository;
@@ -28,6 +29,10 @@ public class RecetaService {
 
     public Optional<Receta> buscarPorId(Long id) {
         return repository.findById(id);
+    }
+
+    public List<RecetaResumen> buscarPorIds(List<Long> ids) {
+        return repository.findAllById(ids).stream().map(RecetaResumen::desde).toList();
     }
 
     @Transactional

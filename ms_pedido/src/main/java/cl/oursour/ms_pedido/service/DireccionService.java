@@ -2,6 +2,7 @@ package cl.oursour.ms_pedido.service;
 
 import cl.oursour.ms_pedido.model.DireccionDespacho;
 import cl.oursour.ms_pedido.repository.DireccionRepository;
+import cl.oursour.ms_pedido.repository.PedidoRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,8 +13,11 @@ public class DireccionService {
 
     private final DireccionRepository repository;
 
-    DireccionService(DireccionRepository repository) {
+    private final PedidoRepository pedidoRepository;
+
+    DireccionService(DireccionRepository repository, PedidoRepository pedidoRepository) {
         this.repository = repository;
+        this.pedidoRepository = pedidoRepository;
     }
 
     public List<DireccionDespacho> listarTodas() {
@@ -47,6 +51,9 @@ public class DireccionService {
     }
 
     public void eliminar(Long id) {
+        if (pedidoRepository.existsByIdDireccion(id)) {
+            throw new IllegalStateException("No se puede eliminar la dirección: tiene pedidos asociados");
+        }
         repository.deleteById(id);
     }
 }

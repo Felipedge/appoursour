@@ -24,7 +24,8 @@ public class Receta {
     private String tipo;
     private String pasosPreparacion;
 
-    private long idProducto;
+    // Producto Our Sour asociado (opcional): vive en MS-Producto, aquí solo se guarda el id
+    private Long idProducto;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "receta", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -65,11 +66,11 @@ public class Receta {
         this.pasosPreparacion = pasosPreparacion;
     }
 
-    public long getIdProducto() {
+    public Long getIdProducto() {
         return idProducto;
     }
 
-    public void setIdProducto(long idProducto) {
+    public void setIdProducto(Long idProducto) {
         this.idProducto = idProducto;
     }
 

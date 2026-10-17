@@ -1,5 +1,6 @@
 package cl.oursour.ms_recetas.service;
 
+import cl.oursour.ms_recetas.dto.IngredienteResumen;
 import cl.oursour.ms_recetas.model.Ingrediente;
 import cl.oursour.ms_recetas.repository.IngredienteRepository;
 
@@ -23,6 +24,10 @@ public class IngredienteService {
 
     public Optional<Ingrediente> buscarPorId(Long id) {
         return repository.findById(id);
+    }
+
+    public List<IngredienteResumen> buscarPorIds(List<Long> ids) {
+        return repository.findAllById(ids).stream().map(IngredienteResumen::desde).toList();
     }
 
     public List<Ingrediente> buscarPorCategoria(String categoria) {

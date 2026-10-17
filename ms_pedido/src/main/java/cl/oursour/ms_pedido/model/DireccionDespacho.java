@@ -11,7 +11,10 @@ import jakarta.persistence.Table;
 public class DireccionDespacho {
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idUsuario;
+    private Long idDireccion;
+
+    // Usuario dueño de la dirección: vive en MS-Usuario, aquí solo se guarda el id
+    private Long idUsuario;
 
     private String calle;
     private String numero;
@@ -22,11 +25,19 @@ public class DireccionDespacho {
     public DireccionDespacho() {
     }
 
-    public long getIdUsuario() {
+    public Long getIdDireccion() {
+        return idDireccion;
+    }
+
+    public void setIdDireccion(Long idDireccion) {
+        this.idDireccion = idDireccion;
+    }
+
+    public Long getIdUsuario() {
         return idUsuario;
     }
 
-    public void setIdUsuario(long idUsuario) {
+    public void setIdUsuario(Long idUsuario) {
         this.idUsuario = idUsuario;
     }
 

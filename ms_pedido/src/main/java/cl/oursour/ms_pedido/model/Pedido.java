@@ -32,7 +32,7 @@ public class Pedido {
     private int costoDespacho;
     private int montoTotal;
 
-    // PENDIENTE_PAGO, SOLICITADO, EN_PREPARACION o PAGO_RECHAZADO
+   
     private String estado = "PENDIENTE_PAGO";
 
     private LocalDateTime fechaCreacion = LocalDateTime.now();

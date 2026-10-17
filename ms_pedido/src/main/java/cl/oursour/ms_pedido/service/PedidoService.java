@@ -77,7 +77,8 @@ public class PedidoService {
     public Pedido actualizarEstado(Long id, String estado) {
         Pedido p = pedidoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado"));
-        p.setEstado(estado);
+        // Acepta PAGADO o "PAGADO" (Postman con body JSON manda las comillas)
+        p.setEstado(estado.trim().replaceAll("^\"|\"$", "").toUpperCase());
         return pedidoRepository.save(p);
     }
 
