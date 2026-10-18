@@ -6,10 +6,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-@Entity 
+@Entity
 @Table(name = "direccion_despacho")
 public class DireccionDespacho {
-    @Id 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idDireccion;
 
@@ -80,5 +80,5 @@ public class DireccionDespacho {
     public void setReferencia(String referencia) {
         this.referencia = referencia;
     }
-    
+
 }

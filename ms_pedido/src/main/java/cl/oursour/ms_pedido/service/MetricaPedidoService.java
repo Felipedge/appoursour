@@ -1,40 +1,43 @@
 package cl.oursour.ms_pedido.service;
 
-import java.math.BigDecimal;
-import java.util.List;
-
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-
 import cl.oursour.ms_pedido.dto.ConteoId;
 import cl.oursour.ms_pedido.dto.VentasResponse;
+import cl.oursour.ms_pedido.model.EstadoPedido;
 import cl.oursour.ms_pedido.repository.PedidoProductoRepository;
 import cl.oursour.ms_pedido.repository.PedidoRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-// Datos de ventas que pide ms_metricas por /internal/metricas
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Set;
+
+// Datos de ventas que consume ms_metricas
 @Service
 public class MetricaPedidoService {
 
-    // Un pedido cuenta como venta cuando su pago fue aprobado
-    private static final List<String> ESTADOS_PAGADOS = List.of("SOLICITADO", "EN_PREPARACION");
-    private static final int LIMITE_MAXIMO = 100;
+    // Un pedido cuenta como venta cuando ya pasó el pago
+    private static final Set<EstadoPedido> PAGADOS = Set.of(EstadoPedido.SOLICITADO, EstadoPedido.EN_PREPARACION);
 
     private final PedidoRepository pedidoRepository;
     private final PedidoProductoRepository pedidoProductoRepository;
 
-    public MetricaPedidoService(PedidoRepository pedidoRepository, PedidoProductoRepository pedidoProductoRepository) {
+    public MetricaPedidoService(PedidoRepository pedidoRepository,
+                                PedidoProductoRepository pedidoProductoRepository) {
         this.pedidoRepository = pedidoRepository;
         this.pedidoProductoRepository = pedidoProductoRepository;
     }
 
+    @Transactional(readOnly = true)
     public VentasResponse ventas() {
-        long pedidosPagados = pedidoRepository.countByEstadoIn(ESTADOS_PAGADOS);
-        long total = pedidoRepository.sumarMontoTotalPorEstados(ESTADOS_PAGADOS);
-        return new VentasResponse(pedidosPagados, BigDecimal.valueOf(total));
+        BigDecimal total = pedidoRepository.sumarMontoTotal(PAGADOS);
+        return new VentasResponse(pedidoRepository.countByEstadoIn(PAGADOS), total != null ? total : BigDecimal.ZERO);
     }
 
+    @Transactional(readOnly = true)
     public List<ConteoId> productosMasVendidos(int limite) {
-        int tamanio = Math.max(1, Math.min(limite, LIMITE_MAXIMO));
-        return pedidoProductoRepository.productosMasVendidos(ESTADOS_PAGADOS, PageRequest.of(0, tamanio));
+        int tope = Math.clamp(limite, 1, 100);
+        return pedidoProductoRepository.productosMasVendidos(PAGADOS, PageRequest.of(0, tope));
     }
 }

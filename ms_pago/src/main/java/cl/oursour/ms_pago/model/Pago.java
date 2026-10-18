@@ -1,8 +1,11 @@
 package cl.oursour.ms_pago.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,21 +19,27 @@ public class Pago {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPago;
 
-    
+    // Pedido que se paga: vive en MS-Pedido, aquí solo se guarda el id
     private Long idPedido;
 
-    private int monto;
-    private String metodo; 
+    // Usuario que paga: sale del JWT
+    private Long idUsuario;
 
-    
-    private String estado = "APROBADO";
+    // Se copia del montoTotal del pedido, no lo envía el cliente
+    private BigDecimal monto;
+
+    private String metodo;
+
+    // Lo decide el servidor al procesar el pago
+    @Enumerated(EnumType.STRING)
+    private EstadoPago estado;
 
     private LocalDateTime fechaPago = LocalDateTime.now();
 
     public Pago() {
     }
 
-      public Long getIdPago() {
+    public Long getIdPago() {
         return idPago;
     }
 
@@ -46,11 +55,19 @@ public class Pago {
         this.idPedido = idPedido;
     }
 
-    public int getMonto() {
+    public Long getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(Long idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    public BigDecimal getMonto() {
         return monto;
     }
 
-    public void setMonto(int monto) {
+    public void setMonto(BigDecimal monto) {
         this.monto = monto;
     }
 
@@ -62,11 +79,11 @@ public class Pago {
         this.metodo = metodo;
     }
 
-    public String getEstado() {
+    public EstadoPago getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoPago estado) {
         this.estado = estado;
     }
 

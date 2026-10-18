@@ -1,16 +1,21 @@
 package cl.oursour.ms_recetas.controller;
 
-import cl.oursour.ms_recetas.model.DetalleReceta;
-import cl.oursour.ms_recetas.model.Receta;
+import cl.oursour.ms_recetas.dto.DetalleRequest;
+import cl.oursour.ms_recetas.dto.RecetaRequest;
+import cl.oursour.ms_recetas.dto.RecetaResponse;
+import cl.oursour.ms_recetas.dto.RecomendacionRequest;
+import cl.oursour.ms_recetas.dto.RecomendacionResponse;
+import cl.oursour.ms_recetas.security.Autorizacion;
 import cl.oursour.ms_recetas.service.RecetaService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/recetas")
+@RequestMapping("/api/recetas")
 public class RecetaController {
 
     private final RecetaService service;
@@ -20,41 +25,49 @@ public class RecetaController {
     }
 
     @GetMapping
-    public List<Receta> listarTodas() {
+    public List<RecetaResponse> listarTodas() {
         return service.listarTodas();
     }
 
     @GetMapping("/{id}")
-    public Optional<Receta> buscarPorId(@PathVariable Long id) {
+    public RecetaResponse buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id);
     }
 
+    // Motor de recomendación: cualquier usuario autenticado
+    @PostMapping("/recomendar")
+    public List<RecomendacionResponse> recomendar(@Valid @RequestBody RecomendacionRequest req) {
+        return service.recomendar(req.ingredientes());
+    }
+
     @PostMapping
-    public ResponseEntity<?> guardar(@RequestBody Receta receta) {
-        try {
-            return ResponseEntity.ok(service.guardar(receta));
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }
+    public ResponseEntity<RecetaResponse> guardar(@RequestHeader(Autorizacion.HEADER_ROL) String rol,
+                                                  @Valid @RequestBody RecetaRequest req) {
+        Autorizacion.exigirAdmin(rol);
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.guardar(req));
     }
 
     @PostMapping("/{id}/detalles")
-    public ResponseEntity<?> agregarDetalle(@PathVariable Long id, @RequestBody DetalleReceta detalle) {
-        try {
-            return ResponseEntity.ok(service.agregarDetalle(id, detalle));
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }
+    public RecetaResponse agregarDetalle(@RequestHeader(Autorizacion.HEADER_ROL) String rol,
+                                         @PathVariable Long id,
+                                         @Valid @RequestBody DetalleRequest req) {
+        Autorizacion.exigirAdmin(rol);
+        return service.agregarDetalle(id, req);
     }
 
     @PutMapping("/{id}")
-    public Receta actualizar(@PathVariable Long id, @RequestBody Receta receta) {
-        return service.actualizar(id, receta);
+    public RecetaResponse actualizar(@RequestHeader(Autorizacion.HEADER_ROL) String rol,
+                                     @PathVariable Long id,
+                                     @Valid @RequestBody RecetaRequest req) {
+        Autorizacion.exigirAdmin(rol);
+        return service.actualizar(id, req);
     }
 
     @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminar(@RequestHeader(Autorizacion.HEADER_ROL) String rol,
+                                         @PathVariable Long id) {
+        Autorizacion.exigirAdmin(rol);
         service.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 }
-

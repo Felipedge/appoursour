@@ -18,13 +18,13 @@ import jakarta.persistence.Table;
 public class Receta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idReceta;
+    private Long idReceta;
 
     private String titulo;
     private String tipo;
     private String pasosPreparacion;
 
-    // Producto Our Sour asociado (opcional): vive en MS-Producto, aquí solo se guarda el id
+    // Producto Our Sour asociado (opcional): vive en MS-Catalogo, aquí solo se guarda el id
     private Long idProducto;
 
     @JsonManagedReference
@@ -34,11 +34,11 @@ public class Receta {
     public Receta() {
     }
 
-    public long getIdReceta() {
+    public Long getIdReceta() {
         return idReceta;
     }
 
-    public void setIdReceta(long idReceta) {
+    public void setIdReceta(Long idReceta) {
         this.idReceta = idReceta;
     }
 

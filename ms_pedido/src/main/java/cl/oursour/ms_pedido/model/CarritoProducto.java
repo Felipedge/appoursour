@@ -1,6 +1,5 @@
 package cl.oursour.ms_pedido.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -24,7 +23,6 @@ public class CarritoProducto {
 
     private int cantidad;
 
-    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_carrito")
     private Carrito carrito;

@@ -1,18 +1,23 @@
 package cl.oursour.ms_pedido.service;
 
+import cl.oursour.ms_pedido.dto.DireccionRequest;
+import cl.oursour.ms_pedido.dto.DireccionResponse;
 import cl.oursour.ms_pedido.model.DireccionDespacho;
 import cl.oursour.ms_pedido.repository.DireccionRepository;
 import cl.oursour.ms_pedido.repository.PedidoRepository;
+import cl.oursour.ms_pedido.security.Autorizacion;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class DireccionService {
 
     private final DireccionRepository repository;
-
     private final PedidoRepository pedidoRepository;
 
     DireccionService(DireccionRepository repository, PedidoRepository pedidoRepository) {
@@ -20,40 +25,64 @@ public class DireccionService {
         this.pedidoRepository = pedidoRepository;
     }
 
-    public List<DireccionDespacho> listarTodas() {
-        return repository.findAll();
+    // El ADMIN ve todas las direcciones; un consumidor solo las suyas
+    public List<DireccionResponse> listar(Long userId, String rol) {
+        List<DireccionDespacho> direcciones = Autorizacion.esAdmin(rol)
+                ? repository.findAll()
+                : repository.findByIdUsuario(userId);
+        return direcciones.stream().map(DireccionResponse::desde).toList();
     }
 
-    public Optional<DireccionDespacho> buscarPorId(Long id) {
-        return repository.findById(id);
+    public DireccionResponse buscarPorId(Long id, Long userId, String rol) {
+        return DireccionResponse.desde(buscarDireccion(id, userId, rol));
     }
 
-    public DireccionDespacho guardar(DireccionDespacho direccion) {
-        return repository.save(direccion);
+    // El dueño de la dirección es siempre el usuario del token
+    public DireccionResponse guardar(Long userId, DireccionRequest req) {
+        DireccionDespacho direccion = new DireccionDespacho();
+        direccion.setIdUsuario(userId);
+        copiarDatos(req, direccion);
+        return DireccionResponse.desde(repository.save(direccion));
     }
 
-    public DireccionDespacho actualizar(Long id, DireccionDespacho direccionActualizada) {
-
-        DireccionDespacho direccion = repository.findById(id).orElse(null);
-
-        if (direccion != null) {
-
-            direccion.setCalle(direccionActualizada.getCalle());
-            direccion.setNumero(direccionActualizada.getNumero());
-            direccion.setComuna(direccionActualizada.getComuna());
-            direccion.setCiudad(direccionActualizada.getCiudad());
-            direccion.setReferencia(direccionActualizada.getReferencia());
-
-            return repository.save(direccion);
-        }
-
-        return null;
+    public DireccionResponse actualizar(Long id, DireccionRequest req, Long userId, String rol) {
+        DireccionDespacho direccion = buscarDireccion(id, userId, rol);
+        copiarDatos(req, direccion);
+        return DireccionResponse.desde(repository.save(direccion));
     }
 
-    public void eliminar(Long id) {
+    @Transactional
+    public void eliminar(Long id, Long userId, String rol) {
+        DireccionDespacho direccion = buscarDireccion(id, userId, rol);
         if (pedidoRepository.existsByIdDireccion(id)) {
-            throw new IllegalStateException("No se puede eliminar la dirección: tiene pedidos asociados");
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "No se puede eliminar: la dirección está asociada a uno o más pedidos");
         }
-        repository.deleteById(id);
+        repository.delete(direccion);
+    }
+
+    // Usado al crear un pedido: la dirección debe existir y ser del comprador
+    DireccionDespacho buscarDelUsuario(Long id, Long userId) {
+        DireccionDespacho direccion = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dirección no existe"));
+        if (!userId.equals(direccion.getIdUsuario())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La dirección no pertenece al usuario");
+        }
+        return direccion;
+    }
+
+    private DireccionDespacho buscarDireccion(Long id, Long userId, String rol) {
+        DireccionDespacho direccion = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dirección no encontrada"));
+        Autorizacion.exigirDuenoOAdmin(direccion.getIdUsuario(), userId, rol);
+        return direccion;
+    }
+
+    private void copiarDatos(DireccionRequest req, DireccionDespacho direccion) {
+        direccion.setCalle(req.calle());
+        direccion.setNumero(req.numero());
+        direccion.setComuna(req.comuna());
+        direccion.setCiudad(req.ciudad());
+        direccion.setReferencia(req.referencia());
     }
 }

@@ -1,14 +1,19 @@
 package cl.oursour.ms_pedido.service;
 
+import cl.oursour.ms_pedido.dto.CarritoRequest;
+import cl.oursour.ms_pedido.dto.CarritoResponse;
+import cl.oursour.ms_pedido.dto.ProductoCarritoRequest;
 import cl.oursour.ms_pedido.model.Carrito;
 import cl.oursour.ms_pedido.model.CarritoProducto;
 import cl.oursour.ms_pedido.repository.CarritoRepository;
+import cl.oursour.ms_pedido.security.Autorizacion;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CarritoService {
@@ -19,88 +24,78 @@ public class CarritoService {
         this.carritoRepository = carritoRepository;
     }
 
+    // El dueño del carrito es siempre el usuario del token
     @Transactional
-    public Carrito crearCarrito(Carrito c) {
-        if (c.getIdUsuario() == null || c.getIdUsuario() <= 0) {
-            throw new IllegalArgumentException("idUsuario es obligatorio");
-        }
-
-        List<CarritoProducto> productos = c.getProductos();
-        if (productos == null || productos.isEmpty()) {
-            throw new IllegalArgumentException("El carrito debe contener al menos un producto");
-        }
-
-        List<CarritoProducto> incoming = new ArrayList<>(productos);
-        c.getProductos().clear();
-        incoming.forEach(c::addProducto);
-
-        for (CarritoProducto p : c.getProductos()) {
-            validarProducto(p);
-        }
-
-        return carritoRepository.save(c);
+    public CarritoResponse crearCarrito(Long userId, CarritoRequest req) {
+        Carrito c = new Carrito();
+        c.setIdUsuario(userId);
+        req.productos().forEach(p -> c.addProducto(crearLinea(p)));
+        return CarritoResponse.desde(carritoRepository.save(c));
     }
 
-    public Optional<Carrito> obtener(Long id) {
-        return carritoRepository.findById(id);
+    @Transactional(readOnly = true)
+    public CarritoResponse obtener(Long id, Long userId, String rol) {
+        return CarritoResponse.desde(buscarCarrito(id, userId, rol));
     }
 
-    public List<Carrito> listar() {
-        return carritoRepository.findAll();
+    // El ADMIN ve todos los carritos; un consumidor solo los suyos
+    @Transactional(readOnly = true)
+    public List<CarritoResponse> listar(Long userId, String rol) {
+        List<Carrito> carritos = Autorizacion.esAdmin(rol)
+                ? carritoRepository.findAll()
+                : carritoRepository.findByIdUsuario(userId);
+        return carritos.stream().map(CarritoResponse::desde).toList();
     }
 
     @Transactional
-    public Carrito agregarProducto(Long id, CarritoProducto p) {
-        Carrito c = buscarCarrito(id);
-        validarProducto(p);
-        c.addProducto(p);
-        return carritoRepository.save(c);
+    public CarritoResponse agregarProducto(Long id, ProductoCarritoRequest req, Long userId, String rol) {
+        Carrito c = buscarCarrito(id, userId, rol);
+        c.addProducto(crearLinea(req));
+        return CarritoResponse.desde(carritoRepository.save(c));
     }
 
     @Transactional
-    public Carrito eliminarProducto(Long id, Long idDetalle) {
-        Carrito c = buscarCarrito(id);
+    public CarritoResponse eliminarProducto(Long id, Long idDetalle, Long userId, String rol) {
+        Carrito c = buscarCarrito(id, userId, rol);
         CarritoProducto p = buscarLinea(c, idDetalle);
         c.removeProducto(p);
-        return carritoRepository.save(c);
+        return CarritoResponse.desde(carritoRepository.save(c));
     }
 
     @Transactional
-    public Carrito cambiarCantidad(Long id, Long idDetalle, int cantidad) {
-        if (cantidad <= 0) {
-            throw new IllegalArgumentException("cantidad debe ser > 0");
-        }
-        Carrito c = buscarCarrito(id);
+    public CarritoResponse cambiarCantidad(Long id, Long idDetalle, int cantidad, Long userId, String rol) {
+        Carrito c = buscarCarrito(id, userId, rol);
         CarritoProducto p = buscarLinea(c, idDetalle);
         p.setCantidad(cantidad);
-        return carritoRepository.save(c);
+        return CarritoResponse.desde(carritoRepository.save(c));
     }
 
     @Transactional
-    public Carrito vaciar(Long id) {
-        Carrito c = buscarCarrito(id);
+    public CarritoResponse vaciar(Long id, Long userId, String rol) {
+        Carrito c = buscarCarrito(id, userId, rol);
         new ArrayList<>(c.getProductos()).forEach(c::removeProducto);
-        return carritoRepository.save(c);
+        return CarritoResponse.desde(carritoRepository.save(c));
     }
 
-    private Carrito buscarCarrito(Long id) {
-        return carritoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Carrito no encontrado"));
+    private Carrito buscarCarrito(Long id, Long userId, String rol) {
+        Carrito c = carritoRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Carrito no encontrado"));
+        Autorizacion.exigirDuenoOAdmin(c.getIdUsuario(), userId, rol);
+        return c;
     }
 
     private CarritoProducto buscarLinea(Carrito c, Long idDetalle) {
         return c.getProductos().stream()
                 .filter(x -> x.getIdDetalle().equals(idDetalle))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado en el carrito"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Producto no encontrado en el carrito"));
     }
 
-    private void validarProducto(CarritoProducto p) {
-        if (p.getIdProducto() == null || p.getIdProducto() <= 0) {
-            throw new IllegalArgumentException("idProducto es obligatorio en cada producto");
-        }
-        if (p.getCantidad() <= 0) {
-            throw new IllegalArgumentException("cantidad debe ser > 0");
-        }
+    private CarritoProducto crearLinea(ProductoCarritoRequest req) {
+        CarritoProducto p = new CarritoProducto();
+        p.setIdProducto(req.idProducto());
+        p.setCantidad(req.cantidad());
+        return p;
     }
 }
