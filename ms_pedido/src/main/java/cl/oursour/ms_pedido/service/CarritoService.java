@@ -24,7 +24,7 @@ public class CarritoService {
         this.carritoRepository = carritoRepository;
     }
 
-    // El dueño del carrito es siempre el usuario del token
+    
     @Transactional
     public CarritoResponse crearCarrito(Long userId, CarritoRequest req) {
         Carrito c = new Carrito();
@@ -38,7 +38,7 @@ public class CarritoService {
         return CarritoResponse.desde(buscarCarrito(id, userId, rol));
     }
 
-    // El ADMIN ve todos los carritos; un consumidor solo los suyos
+   
     @Transactional(readOnly = true)
     public List<CarritoResponse> listar(Long userId, String rol) {
         List<Carrito> carritos = Autorizacion.esAdmin(rol)

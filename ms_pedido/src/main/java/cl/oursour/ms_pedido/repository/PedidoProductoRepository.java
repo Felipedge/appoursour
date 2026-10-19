@@ -14,8 +14,7 @@ import java.util.List;
 
 public interface PedidoProductoRepository extends JpaRepository<PedidoProducto, Long> {
 
-    // Unidades vendidas por producto, solo de pedidos en los estados indicados
-    @Query("""
+        @Query("""
             select new cl.oursour.ms_pedido.dto.ConteoId(d.idProducto, sum(d.cantidad))
             from PedidoProducto d
             where d.pedido.estado in :estados

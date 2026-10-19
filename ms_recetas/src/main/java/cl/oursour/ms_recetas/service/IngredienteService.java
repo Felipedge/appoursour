@@ -63,7 +63,7 @@ public class IngredienteService {
         return repository.existsById(id);
     }
 
-    // Usado por el motor de recomendación para traer los nombres de una sola vez
+    
     public List<Ingrediente> buscarVarios(Collection<Long> ids) {
         return repository.findAllById(ids);
     }

@@ -19,7 +19,7 @@ public record RecetaRequest(
         @NotBlank(message = "Los pasos de preparación son obligatorios")
         String pasosPreparacion,
 
-        // Producto Our Sour asociado (opcional)
+       
         @Positive(message = "idProducto debe ser mayor a 0")
         Long idProducto,
 

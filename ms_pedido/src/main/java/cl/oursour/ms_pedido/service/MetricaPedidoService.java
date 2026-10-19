@@ -13,11 +13,11 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
-// Datos de ventas que consume ms_metricas
+
 @Service
 public class MetricaPedidoService {
 
-    // Un pedido cuenta como venta cuando ya pasó el pago
+    
     private static final Set<EstadoPedido> PAGADOS = Set.of(EstadoPedido.SOLICITADO, EstadoPedido.EN_PREPARACION);
 
     private final PedidoRepository pedidoRepository;

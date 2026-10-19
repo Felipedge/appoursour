@@ -18,7 +18,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     long countByEstadoIn(Collection<EstadoPedido> estados);
 
-    // null si no hay pedidos en esos estados
+    
     @Query("select sum(p.montoTotal) from Pedido p where p.estado in :estados")
     BigDecimal sumarMontoTotal(@Param("estados") Collection<EstadoPedido> estados);
 }

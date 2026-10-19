@@ -24,7 +24,7 @@ import java.util.Set;
 @Service
 public class PagoService {
 
-    // Estados del pedido en los que se puede pagar (PAGO_RECHAZADO permite reintentar)
+
     private static final Set<String> ESTADOS_PAGABLES = Set.of("PENDIENTE_PAGO", "PAGO_RECHAZADO");
 
     private final PagoRepository repository;
@@ -40,7 +40,7 @@ public class PagoService {
         this.pedidoUrl = pedidoUrl;
     }
 
-    // El ADMIN ve todos los pagos; un consumidor solo los suyos
+    
     public List<PagoResponse> listarPagos(Long userId, String rol) {
         List<Pago> pagos = Autorizacion.esAdmin(rol)
                 ? repository.findAll()
@@ -54,10 +54,7 @@ public class PagoService {
         return PagoResponse.desde(pago);
     }
 
-    /**
-     * Procesa el pago de un pedido con una pasarela simulada.
-     * El token del usuario se reenvía a ms_pedido, así solo se puede pagar un pedido propio.
-     */
+    
     public PagoResponse procesarPago(PagoRequest req, Long userId, String authorization) {
         PedidoRemoto pedido = obtenerPedido(req.idPedido(), authorization);
 

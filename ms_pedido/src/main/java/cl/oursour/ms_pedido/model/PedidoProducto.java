@@ -19,12 +19,12 @@ public class PedidoProducto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idDetalle;
 
-    // Producto del catálogo: vive en MS-Producto, aquí solo se guarda el id
+    
     private Long idProducto;
 
     private int cantidad;
 
-    // Precio del producto al momento de la compra
+    
     private BigDecimal precioUnitario;
 
     @ManyToOne(fetch = FetchType.LAZY)

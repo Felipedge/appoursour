@@ -28,7 +28,7 @@ public class PedidoController {
         return service.listar(userId, rol);
     }
 
-    // También lo usa ms_pago (reenviando el token del usuario) para validar el pedido y su monto
+    
     @GetMapping("/{id}")
     public PedidoResponse obtener(@RequestHeader(Autorizacion.HEADER_USUARIO) Long userId,
                                   @RequestHeader(Autorizacion.HEADER_ROL) String rol,

@@ -71,18 +71,13 @@ public class RecetaService {
         repository.delete(buscarReceta(id));
     }
 
-    /**
-     * Motor de recomendación: recibe los ingredientes que tiene el usuario y devuelve
-     * las recetas que puede preparar, ordenadas por % de coincidencia
-     * (ingredientes de la receta que ya tiene / ingredientes totales de la receta).
-     * Las recetas sin ningún ingrediente en común no se devuelven.
-     */
+    
     @Transactional(readOnly = true)
     public List<RecomendacionResponse> recomendar(List<Long> ingredientesUsuario) {
         Set<Long> disponibles = new HashSet<>(ingredientesUsuario);
         List<Receta> recetas = repository.findAll();
 
-        // Nombres de todos los ingredientes involucrados, en una sola consulta
+        
         Set<Long> idsUsados = recetas.stream()
                 .flatMap(r -> r.getDetalles().stream())
                 .map(DetalleReceta::getIdIngrediente)
@@ -92,7 +87,6 @@ public class RecetaService {
 
         List<RecomendacionResponse> resultado = new ArrayList<>();
         for (Receta receta : recetas) {
-            // Un ingrediente repetido en la receta cuenta una sola vez
             Set<Long> requeridos = receta.getDetalles().stream()
                     .map(DetalleReceta::getIdIngrediente)
                     .collect(Collectors.toCollection(LinkedHashSet::new));

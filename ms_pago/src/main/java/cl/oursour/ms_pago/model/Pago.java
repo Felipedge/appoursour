@@ -19,18 +19,17 @@ public class Pago {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPago;
 
-    // Pedido que se paga: vive en MS-Pedido, aquí solo se guarda el id
+   
     private Long idPedido;
 
-    // Usuario que paga: sale del JWT
+
     private Long idUsuario;
 
-    // Se copia del montoTotal del pedido, no lo envía el cliente
     private BigDecimal monto;
 
     private String metodo;
 
-    // Lo decide el servidor al procesar el pago
+ 
     @Enumerated(EnumType.STRING)
     private EstadoPago estado;
 

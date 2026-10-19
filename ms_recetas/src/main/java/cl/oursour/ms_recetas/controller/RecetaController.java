@@ -34,7 +34,7 @@ public class RecetaController {
         return service.buscarPorId(id);
     }
 
-    // Motor de recomendación: cualquier usuario autenticado
+    
     @PostMapping("/recomendar")
     public List<RecomendacionResponse> recomendar(@Valid @RequestBody RecomendacionRequest req) {
         return service.recomendar(req.ingredientes());

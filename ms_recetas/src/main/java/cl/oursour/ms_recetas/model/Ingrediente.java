@@ -15,9 +15,9 @@ public class Ingrediente {
     private Long idIngrediente;
 
     private String nombre;
-    private String categoria; // DESTILADO, LICOR, FRUTA, JUGO, MIXER, OUR_SOUR, OTRO
+    private String categoria; 
 
-    // Solo para ingredientes OUR_SOUR: id del producto en MS-Producto
+
     private Long idProducto;
 
     public Ingrediente() {

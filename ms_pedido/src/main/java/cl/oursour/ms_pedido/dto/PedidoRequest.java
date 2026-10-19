@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Positive;
 
 import java.util.List;
 
-// El comprador sale del JWT; montos y estado los calcula el servidor
+
 public record PedidoRequest(
         @NotNull(message = "idDireccion es obligatorio")
         @Positive(message = "idDireccion debe ser mayor a 0")

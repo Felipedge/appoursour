@@ -11,8 +11,8 @@ public class AppConfig {
     @Bean
     public RestTemplate restTemplate() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(3000); // 3 segundos para conectar
-        factory.setReadTimeout(5000);    // 5 segundos para recibir la respuesta
+        factory.setConnectTimeout(3000); 
+        factory.setReadTimeout(5000);    
         return new RestTemplate(factory);
     }
     

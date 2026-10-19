@@ -13,7 +13,7 @@ public class DireccionDespacho {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idDireccion;
 
-    // Usuario dueño de la dirección: vive en MS-Usuario, aquí solo se guarda el id
+    
     private Long idUsuario;
 
     private String calle;

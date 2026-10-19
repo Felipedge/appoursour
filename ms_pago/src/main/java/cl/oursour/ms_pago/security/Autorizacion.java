@@ -22,7 +22,7 @@ public final class Autorizacion {
         return "ADMIN".equals(rol);
     }
 
-    // Un usuario solo puede ver lo suyo; el ADMIN puede todo
+    
     public static void exigirDuenoOAdmin(Long idDueno, Long userId, String rol) {
         if (!esAdmin(rol) && (idDueno == null || !idDueno.equals(userId))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permisos para esta acción");

@@ -31,7 +31,7 @@ public class PedidoService {
         this.direccionService = direccionService;
     }
 
-    // El comprador es siempre el usuario del token; montos y estado los calcula el servidor
+    
     @Transactional
     public PedidoResponse crearPedido(Long userId, PedidoRequest req) {
         direccionService.buscarDelUsuario(req.idDireccion(), userId);
@@ -66,7 +66,7 @@ public class PedidoService {
         return PedidoResponse.desde(p);
     }
 
-    // El ADMIN ve todos los pedidos; un consumidor solo los suyos
+    
     @Transactional(readOnly = true)
     public List<PedidoResponse> listar(Long userId, String rol) {
         List<Pedido> pedidos = Autorizacion.esAdmin(rol)

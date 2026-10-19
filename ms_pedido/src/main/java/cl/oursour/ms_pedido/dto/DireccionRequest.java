@@ -3,7 +3,7 @@ package cl.oursour.ms_pedido.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-// El dueño de la dirección sale del JWT
+
 public record DireccionRequest(
         @NotBlank(message = "La calle es obligatoria")
         @Size(max = 150, message = "La calle no puede tener más de 150 caracteres")

@@ -7,7 +7,6 @@ public record RecomendacionResponse(
         String titulo,
         String tipo,
         Long idProducto,
-        // % de ingredientes de la receta que el usuario ya tiene (0 a 100, un decimal)
         double porcentajeCoincidencia,
         List<IngredienteResponse> ingredientesQueTienes,
         List<IngredienteResponse> ingredientesFaltantes

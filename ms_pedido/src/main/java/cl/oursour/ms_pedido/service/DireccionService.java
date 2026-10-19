@@ -25,7 +25,7 @@ public class DireccionService {
         this.pedidoRepository = pedidoRepository;
     }
 
-    // El ADMIN ve todas las direcciones; un consumidor solo las suyas
+    
     public List<DireccionResponse> listar(Long userId, String rol) {
         List<DireccionDespacho> direcciones = Autorizacion.esAdmin(rol)
                 ? repository.findAll()
@@ -37,7 +37,7 @@ public class DireccionService {
         return DireccionResponse.desde(buscarDireccion(id, userId, rol));
     }
 
-    // El dueño de la dirección es siempre el usuario del token
+    
     public DireccionResponse guardar(Long userId, DireccionRequest req) {
         DireccionDespacho direccion = new DireccionDespacho();
         direccion.setIdUsuario(userId);
@@ -61,7 +61,7 @@ public class DireccionService {
         repository.delete(direccion);
     }
 
-    // Usado al crear un pedido: la dirección debe existir y ser del comprador
+    
     DireccionDespacho buscarDelUsuario(Long id, Long userId) {
         DireccionDespacho direccion = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dirección no existe"));

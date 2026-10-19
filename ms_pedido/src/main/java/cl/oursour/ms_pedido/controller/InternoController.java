@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-// Solo para microservicios: SecurityConfig exige la clave interna (X-Internal-Key) en /internal/**
+
 @RestController
 @RequestMapping("/internal/metricas")
 public class InternoController {

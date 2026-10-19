@@ -23,10 +23,10 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPedido;
 
-    // Usuario que compra: vive en MS-Usuario, aquí solo se guarda el id
+    
     private Long idUsuario;
 
-    // Dirección de despacho (tabla direccion_despacho de este mismo microservicio)
+    
     private Long idDireccion;
 
     private BigDecimal subtotal;

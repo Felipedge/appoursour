@@ -24,7 +24,7 @@ public class Receta {
     private String tipo;
     private String pasosPreparacion;
 
-    // Producto Our Sour asociado (opcional): vive en MS-Catalogo, aquí solo se guarda el id
+
     private Long idProducto;
 
     @JsonManagedReference
