@@ -19,9 +19,9 @@ public record PedidoResponse(
         LocalDateTime fechaCreacion,
         List<Linea> productos
 ) {
-    public record Linea(Long idDetalle, Long idProducto, int cantidad, BigDecimal precioUnitario) {
+    public record Linea(Long idProducto, int cantidad, BigDecimal precioUnitario) {
         static Linea desde(PedidoProducto p) {
-            return new Linea(p.getIdDetalle(), p.getIdProducto(), p.getCantidad(), p.getPrecioUnitario());
+            return new Linea(p.getIdProducto(), p.getCantidad(), p.getPrecioUnitario());
         }
     }
 

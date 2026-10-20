@@ -22,9 +22,6 @@ public class Pago {
    
     private Long idPedido;
 
-
-    private Long idUsuario;
-
     private BigDecimal monto;
 
     private String metodo;
@@ -52,14 +49,6 @@ public class Pago {
 
     public void setIdPedido(Long idPedido) {
         this.idPedido = idPedido;
-    }
-
-    public Long getIdUsuario() {
-        return idUsuario;
-    }
-
-    public void setIdUsuario(Long idUsuario) {
-        this.idUsuario = idUsuario;
     }
 
     public BigDecimal getMonto() {

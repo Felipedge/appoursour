@@ -1,11 +1,14 @@
 package cl.oursour.ms_recetas.service;
 
+import cl.oursour.ms_recetas.dto.ConteoIngrediente;
+import cl.oursour.ms_recetas.dto.IngredienteFrecuenteResponse;
 import cl.oursour.ms_recetas.dto.IngredienteRequest;
 import cl.oursour.ms_recetas.dto.IngredienteResponse;
 import cl.oursour.ms_recetas.model.Ingrediente;
 import cl.oursour.ms_recetas.repository.DetalleRecetaRepository;
 import cl.oursour.ms_recetas.repository.IngredienteRepository;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +16,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class IngredienteService {
@@ -37,6 +43,26 @@ public class IngredienteService {
         return repository.findByCategoria(categoria).stream().map(IngredienteResponse::desde).toList();
     }
 
+    
+    public List<IngredienteFrecuenteResponse> frecuentes(int limite) {
+        List<ConteoIngrediente> conteos = detalleRepository.ingredientesFrecuentes(
+                PageRequest.of(0, Math.clamp(limite, 1, 100)));
+        Map<Long, Ingrediente> ingredientes = repository.findAllById(
+                        conteos.stream().map(ConteoIngrediente::idIngrediente).toList()).stream()
+                .collect(Collectors.toMap(Ingrediente::getIdIngrediente, Function.identity()));
+        return conteos.stream()
+                .map(c -> {
+                    Ingrediente i = ingredientes.get(c.idIngrediente());
+                    return new IngredienteFrecuenteResponse(c.idIngrediente(), i != null ? i.getNombre() : null,
+                            i != null ? i.getCategoria() : null, c.cantidad());
+                })
+                .toList();
+    }
+
+    public List<IngredienteResponse> buscarVariosResponse(Collection<Long> ids) {
+        return repository.findAllById(ids).stream().map(IngredienteResponse::desde).toList();
+    }
+
     public IngredienteResponse guardar(IngredienteRequest req) {
         Ingrediente ingrediente = new Ingrediente();
         copiarDatos(req, ingrediente);
@@ -52,7 +78,7 @@ public class IngredienteService {
     @Transactional
     public void eliminar(Long id) {
         Ingrediente ingrediente = buscarIngrediente(id);
-        if (!detalleRepository.findByIdIngrediente(id).isEmpty()) {
+        if (detalleRepository.existsByIdIdIngrediente(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "No se puede eliminar: el ingrediente se usa en una o más recetas");
         }

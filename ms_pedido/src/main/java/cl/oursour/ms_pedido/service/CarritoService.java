@@ -1,12 +1,11 @@
 package cl.oursour.ms_pedido.service;
 
-import cl.oursour.ms_pedido.dto.CarritoRequest;
+import cl.oursour.ms_pedido.client.CatalogoClient;
 import cl.oursour.ms_pedido.dto.CarritoResponse;
 import cl.oursour.ms_pedido.dto.ProductoCarritoRequest;
 import cl.oursour.ms_pedido.model.Carrito;
 import cl.oursour.ms_pedido.model.CarritoProducto;
 import cl.oursour.ms_pedido.repository.CarritoRepository;
-import cl.oursour.ms_pedido.security.Autorizacion;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,88 +13,99 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 
 @Service
 public class CarritoService {
 
     private final CarritoRepository carritoRepository;
+    private final CatalogoClient catalogoClient;
 
-    public CarritoService(CarritoRepository carritoRepository) {
+    public CarritoService(CarritoRepository carritoRepository, CatalogoClient catalogoClient) {
         this.carritoRepository = carritoRepository;
+        this.catalogoClient = catalogoClient;
+    }
+
+    @Transactional(readOnly = true)
+    public CarritoResponse obtener(Long userId) {
+        return buscarDelUsuario(userId).map(CarritoResponse::desde).orElseGet(() -> CarritoResponse.vacio(userId));
     }
 
     
-    @Transactional
-    public CarritoResponse crearCarrito(Long userId, CarritoRequest req) {
-        Carrito c = new Carrito();
-        c.setIdUsuario(userId);
-        req.productos().forEach(p -> c.addProducto(crearLinea(p)));
-        return CarritoResponse.desde(carritoRepository.save(c));
-    }
+    public CarritoResponse agregarProducto(Long userId, ProductoCarritoRequest req) {
+        validarProductoDisponible(req.idProducto());
 
-    @Transactional(readOnly = true)
-    public CarritoResponse obtener(Long id, Long userId, String rol) {
-        return CarritoResponse.desde(buscarCarrito(id, userId, rol));
-    }
+        Carrito c = buscarDelUsuario(userId).orElseGet(() -> {
+            Carrito nuevo = new Carrito();
+            nuevo.setIdUsuario(userId);
+            return nuevo;
+        });
 
-   
-    @Transactional(readOnly = true)
-    public List<CarritoResponse> listar(Long userId, String rol) {
-        List<Carrito> carritos = Autorizacion.esAdmin(rol)
-                ? carritoRepository.findAll()
-                : carritoRepository.findByIdUsuario(userId);
-        return carritos.stream().map(CarritoResponse::desde).toList();
-    }
-
-    @Transactional
-    public CarritoResponse agregarProducto(Long id, ProductoCarritoRequest req, Long userId, String rol) {
-        Carrito c = buscarCarrito(id, userId, rol);
-        c.addProducto(crearLinea(req));
+        buscarLinea(c, req.idProducto()).ifPresentOrElse(
+                p -> p.setCantidad(p.getCantidad() + req.cantidad()),
+                () -> {
+                    CarritoProducto p = new CarritoProducto();
+                    p.setIdProducto(req.idProducto());
+                    p.setCantidad(req.cantidad());
+                    c.addProducto(p);
+                });
         return CarritoResponse.desde(carritoRepository.save(c));
     }
 
     @Transactional
-    public CarritoResponse eliminarProducto(Long id, Long idDetalle, Long userId, String rol) {
-        Carrito c = buscarCarrito(id, userId, rol);
-        CarritoProducto p = buscarLinea(c, idDetalle);
-        c.removeProducto(p);
+    public CarritoResponse cambiarCantidad(Long userId, Long idProducto, int cantidad) {
+        Carrito c = exigirCarrito(userId);
+        exigirLinea(c, idProducto).setCantidad(cantidad);
         return CarritoResponse.desde(carritoRepository.save(c));
     }
 
     @Transactional
-    public CarritoResponse cambiarCantidad(Long id, Long idDetalle, int cantidad, Long userId, String rol) {
-        Carrito c = buscarCarrito(id, userId, rol);
-        CarritoProducto p = buscarLinea(c, idDetalle);
-        p.setCantidad(cantidad);
+    public CarritoResponse eliminarProducto(Long userId, Long idProducto) {
+        Carrito c = exigirCarrito(userId);
+        c.removeProducto(exigirLinea(c, idProducto));
         return CarritoResponse.desde(carritoRepository.save(c));
     }
 
     @Transactional
-    public CarritoResponse vaciar(Long id, Long userId, String rol) {
-        Carrito c = buscarCarrito(id, userId, rol);
+    public CarritoResponse vaciar(Long userId) {
+        Carrito c = exigirCarrito(userId);
         new ArrayList<>(c.getProductos()).forEach(c::removeProducto);
         return CarritoResponse.desde(carritoRepository.save(c));
     }
 
-    private Carrito buscarCarrito(Long id, Long userId, String rol) {
-        Carrito c = carritoRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Carrito no encontrado"));
-        Autorizacion.exigirDuenoOAdmin(c.getIdUsuario(), userId, rol);
-        return c;
+    
+    List<CarritoProducto> productosDelUsuario(Long userId) {
+        return buscarDelUsuario(userId).map(c -> List.copyOf(c.getProductos())).orElse(List.of());
     }
 
-    private CarritoProducto buscarLinea(Carrito c, Long idDetalle) {
-        return c.getProductos().stream()
-                .filter(x -> x.getIdDetalle().equals(idDetalle))
-                .findFirst()
+    void vaciarSiExiste(Long userId) {
+        buscarDelUsuario(userId).ifPresent(c -> new ArrayList<>(c.getProductos()).forEach(c::removeProducto));
+    }
+
+    private Optional<Carrito> buscarDelUsuario(Long userId) {
+        return carritoRepository.findFirstByIdUsuarioOrderByIdCarritoDesc(userId);
+    }
+
+    private Carrito exigirCarrito(Long userId) {
+        return buscarDelUsuario(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "El carrito está vacío"));
+    }
+
+    private static Optional<CarritoProducto> buscarLinea(Carrito c, Long idProducto) {
+        return c.getProductos().stream().filter(x -> x.getIdProducto().equals(idProducto)).findFirst();
+    }
+
+    private static CarritoProducto exigirLinea(Carrito c, Long idProducto) {
+        return buscarLinea(c, idProducto)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Producto no encontrado en el carrito"));
     }
 
-    private CarritoProducto crearLinea(ProductoCarritoRequest req) {
-        CarritoProducto p = new CarritoProducto();
-        p.setIdProducto(req.idProducto());
-        p.setCantidad(req.cantidad());
-        return p;
+    private void validarProductoDisponible(Long idProducto) {
+        CatalogoClient.Producto p = catalogoClient.productos(List.of(idProducto)).get(idProducto);
+        if (p == null || !Boolean.TRUE.equals(p.activo())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Producto no disponible: " + idProducto);
+        }
     }
 }

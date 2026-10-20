@@ -1,29 +1,24 @@
 package cl.oursour.ms_recetas.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
+
 
 @Entity
 @Table(name = "receta_ingrediente")
 public class DetalleReceta {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idDetalle;
+    @EmbeddedId
+    private DetalleRecetaId id = new DetalleRecetaId();
 
-    private Long idIngrediente;
+    private String dosificacion;
 
-    private String dosificacion; 
-    
-    @JsonBackReference
+    @MapsId("idReceta")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_receta")
     private Receta receta;
@@ -31,20 +26,20 @@ public class DetalleReceta {
     public DetalleReceta() {
     }
 
-    public Long getIdDetalle() {
-        return idDetalle;
+    public DetalleRecetaId getId() {
+        return id;
     }
 
-    public void setIdDetalle(Long idDetalle) {
-        this.idDetalle = idDetalle;
+    public void setId(DetalleRecetaId id) {
+        this.id = id;
     }
 
     public Long getIdIngrediente() {
-        return idIngrediente;
+        return id.getIdIngrediente();
     }
 
     public void setIdIngrediente(Long idIngrediente) {
-        this.idIngrediente = idIngrediente;
+        id.setIdIngrediente(idIngrediente);
     }
 
     public String getDosificacion() {

@@ -1,28 +1,24 @@
 package cl.oursour.ms_pedido.model;
 
-
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
+
 
 @Entity
 @Table(name = "carrito_producto")
 public class CarritoProducto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idDetalle;
-
-
-    private Long idProducto;
+    @EmbeddedId
+    private CarritoProductoId id = new CarritoProductoId();
 
     private int cantidad;
 
+    @MapsId("idCarrito")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_carrito")
     private Carrito carrito;
@@ -30,20 +26,20 @@ public class CarritoProducto {
     public CarritoProducto() {
     }
 
-    public Long getIdDetalle() {
-        return idDetalle;
+    public CarritoProductoId getId() {
+        return id;
     }
 
-    public void setIdDetalle(Long idDetalle) {
-        this.idDetalle = idDetalle;
+    public void setId(CarritoProductoId id) {
+        this.id = id;
     }
 
     public Long getIdProducto() {
-        return idProducto;
+        return id.getIdProducto();
     }
 
     public void setIdProducto(Long idProducto) {
-        this.idProducto = idProducto;
+        id.setIdProducto(idProducto);
     }
 
     public int getCantidad() {

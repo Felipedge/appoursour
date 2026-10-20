@@ -12,14 +12,19 @@ public record CarritoResponse(
         LocalDateTime fechaCreacion,
         List<Linea> productos
 ) {
-    public record Linea(Long idDetalle, Long idProducto, int cantidad) {
+    public record Linea(Long idProducto, int cantidad) {
         static Linea desde(CarritoProducto p) {
-            return new Linea(p.getIdDetalle(), p.getIdProducto(), p.getCantidad());
+            return new Linea(p.getIdProducto(), p.getCantidad());
         }
     }
 
     public static CarritoResponse desde(Carrito c) {
         return new CarritoResponse(c.getIdCarrito(), c.getIdUsuario(), c.getFechaCreacion(),
                 c.getProductos().stream().map(Linea::desde).toList());
+    }
+
+    // El usuario todavía no tiene carrito
+    public static CarritoResponse vacio(Long idUsuario) {
+        return new CarritoResponse(null, idUsuario, null, List.of());
     }
 }

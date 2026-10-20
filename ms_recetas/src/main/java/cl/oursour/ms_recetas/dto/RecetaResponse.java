@@ -13,9 +13,9 @@ public record RecetaResponse(
         Long idProducto,
         List<Detalle> detalles
 ) {
-    public record Detalle(Long idDetalle, Long idIngrediente, String dosificacion) {
+    public record Detalle(Long idIngrediente, String dosificacion) {
         static Detalle desde(DetalleReceta d) {
-            return new Detalle(d.getIdDetalle(), d.getIdIngrediente(), d.getDosificacion());
+            return new Detalle(d.getIdIngrediente(), d.getDosificacion());
         }
     }
 
