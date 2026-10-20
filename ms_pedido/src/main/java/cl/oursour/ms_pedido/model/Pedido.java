@@ -1,13 +1,14 @@
 package cl.oursour.ms_pedido.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,22 +23,21 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPedido;
 
-    // Usuario que compra: vive en MS-Usuario, aquí solo se guarda el id
+    
     private Long idUsuario;
 
-    // Dirección de despacho (tabla direccion_despacho de este mismo microservicio)
+    
     private Long idDireccion;
 
-    private int subtotal;
-    private int costoDespacho;
-    private int montoTotal;
+    private BigDecimal subtotal;
+    private BigDecimal costoDespacho;
+    private BigDecimal montoTotal;
 
-    // PENDIENTE_PAGO, SOLICITADO, EN_PREPARACION o PAGO_RECHAZADO
-    private String estado = "PENDIENTE_PAGO";
+    @Enumerated(EnumType.STRING)
+    private EstadoPedido estado = EstadoPedido.PENDIENTE_PAGO;
 
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    @JsonManagedReference
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PedidoProducto> productos = new ArrayList<>();
 
@@ -68,35 +68,35 @@ public class Pedido {
         this.idDireccion = idDireccion;
     }
 
-    public int getSubtotal() {
+    public BigDecimal getSubtotal() {
         return subtotal;
     }
 
-    public void setSubtotal(int subtotal) {
+    public void setSubtotal(BigDecimal subtotal) {
         this.subtotal = subtotal;
     }
 
-    public int getCostoDespacho() {
+    public BigDecimal getCostoDespacho() {
         return costoDespacho;
     }
 
-    public void setCostoDespacho(int costoDespacho) {
+    public void setCostoDespacho(BigDecimal costoDespacho) {
         this.costoDespacho = costoDespacho;
     }
 
-    public int getMontoTotal() {
+    public BigDecimal getMontoTotal() {
         return montoTotal;
     }
 
-    public void setMontoTotal(int montoTotal) {
+    public void setMontoTotal(BigDecimal montoTotal) {
         this.montoTotal = montoTotal;
     }
 
-    public String getEstado() {
+    public EstadoPedido getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoPedido estado) {
         this.estado = estado;
     }
 

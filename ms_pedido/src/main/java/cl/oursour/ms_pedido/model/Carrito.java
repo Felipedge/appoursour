@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -20,15 +19,14 @@ public class Carrito {
 
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idCarrito;
+    private Long idCarrito;
 
     //usuario dueño del carrito vive en ms_usuario
-    private long idUsuario;
+    private Long idUsuario;
 
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
 
-    @JsonManagedReference
     @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CarritoProducto> productos = new ArrayList<>();
 

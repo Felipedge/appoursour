@@ -1,22 +1,27 @@
 package cl.oursour.ms_pedido.service;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-import cl.oursour.ms_pedido.model.DireccionDespacho;
+import cl.oursour.ms_pedido.dto.PedidoRequest;
+import cl.oursour.ms_pedido.dto.PedidoResponse;
+import cl.oursour.ms_pedido.dto.ProductoPedidoRequest;
+import cl.oursour.ms_pedido.model.EstadoPedido;
 import cl.oursour.ms_pedido.model.Pedido;
 import cl.oursour.ms_pedido.model.PedidoProducto;
 import cl.oursour.ms_pedido.repository.PedidoRepository;
-import jakarta.transaction.Transactional;
+import cl.oursour.ms_pedido.security.Autorizacion;
 
-@Service 
+@Service
 public class PedidoService {
 
-     private static final int MONTO_ENVIO_GRATIS = 50000;
-    private static final int COSTO_DESPACHO = 3990;
+    private static final BigDecimal MONTO_ENVIO_GRATIS = new BigDecimal("50000");
+    private static final BigDecimal COSTO_DESPACHO = new BigDecimal("3990");
 
     private final PedidoRepository pedidoRepository;
     private final DireccionService direccionService;
@@ -26,79 +31,64 @@ public class PedidoService {
         this.direccionService = direccionService;
     }
 
+    
     @Transactional
-    public Pedido crearPedido(Pedido p) {
-        if (p.getIdUsuario() == null || p.getIdUsuario() <= 0) {
-            throw new IllegalArgumentException("idUsuario es obligatorio");
-        }
-        validarDireccion(p.getIdDireccion(), p.getIdUsuario());
+    public PedidoResponse crearPedido(Long userId, PedidoRequest req) {
+        direccionService.buscarDelUsuario(req.idDireccion(), userId);
 
-        List<PedidoProducto> productos = p.getProductos();
-        if (productos == null || productos.isEmpty()) {
-            throw new IllegalArgumentException("El pedido debe contener al menos un producto");
-        }
+        Pedido p = new Pedido();
+        p.setIdUsuario(userId);
+        p.setIdDireccion(req.idDireccion());
 
-        List<PedidoProducto> incoming = new ArrayList<>(productos);
-        p.getProductos().clear();
-        incoming.forEach(p::addProducto);
-
-        int subtotal = 0;
-        for (PedidoProducto d : p.getProductos()) {
-            if (d.getIdProducto() == null || d.getIdProducto() <= 0) {
-                throw new IllegalArgumentException("idProducto es obligatorio en cada producto");
-            }
-            if (d.getCantidad() <= 0) {
-                throw new IllegalArgumentException("cantidad debe ser > 0");
-            }
-            if (d.getPrecioUnitario() <= 0) {
-                throw new IllegalArgumentException("precioUnitario debe ser mayor que 0");
-            }
-            subtotal += d.getPrecioUnitario() * d.getCantidad();
+        BigDecimal subtotal = BigDecimal.ZERO;
+        for (ProductoPedidoRequest linea : req.productos()) {
+            PedidoProducto d = new PedidoProducto();
+            d.setIdProducto(linea.idProducto());
+            d.setCantidad(linea.cantidad());
+            d.setPrecioUnitario(linea.precioUnitario());
+            p.addProducto(d);
+            subtotal = subtotal.add(linea.precioUnitario().multiply(BigDecimal.valueOf(linea.cantidad())));
         }
 
-        int despacho = calcularDespacho(subtotal);
+        BigDecimal despacho = calcularDespacho(subtotal);
         p.setSubtotal(subtotal);
         p.setCostoDespacho(despacho);
-        p.setMontoTotal(subtotal + despacho);
-        p.setEstado("PENDIENTE_PAGO");
+        p.setMontoTotal(subtotal.add(despacho));
+        p.setEstado(EstadoPedido.PENDIENTE_PAGO);
 
-        return pedidoRepository.save(p);
+        return PedidoResponse.desde(pedidoRepository.save(p));
     }
 
-    public Optional<Pedido> obtener(Long id) {
-        return pedidoRepository.findById(id);
+    @Transactional(readOnly = true)
+    public PedidoResponse obtener(Long id, Long userId, String rol) {
+        Pedido p = buscarPedido(id);
+        Autorizacion.exigirDuenoOAdmin(p.getIdUsuario(), userId, rol);
+        return PedidoResponse.desde(p);
     }
 
-    public List<Pedido> listar() {
-        return pedidoRepository.findAll();
+    
+    @Transactional(readOnly = true)
+    public List<PedidoResponse> listar(Long userId, String rol) {
+        List<Pedido> pedidos = Autorizacion.esAdmin(rol)
+                ? pedidoRepository.findAll()
+                : pedidoRepository.findByIdUsuario(userId);
+        return pedidos.stream().map(PedidoResponse::desde).toList();
     }
 
     @Transactional
-    public Pedido actualizarEstado(Long id, String estado) {
-        Pedido p = pedidoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado"));
+    public PedidoResponse actualizarEstado(Long id, EstadoPedido estado) {
+        Pedido p = buscarPedido(id);
         p.setEstado(estado);
-        return pedidoRepository.save(p);
+        return PedidoResponse.desde(pedidoRepository.save(p));
     }
 
-    public boolean validarPedido(Long id) {
-        return pedidoRepository.existsById(id);
+    private Pedido buscarPedido(Long id) {
+        return pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido no encontrado"));
     }
 
-    private int calcularDespacho(int subtotal) {
-        return subtotal >= MONTO_ENVIO_GRATIS ? 0 : COSTO_DESPACHO;
+    private BigDecimal calcularDespacho(BigDecimal subtotal) {
+        return subtotal.compareTo(MONTO_ENVIO_GRATIS) >= 0 ? BigDecimal.ZERO : COSTO_DESPACHO;
     }
 
-    private void validarDireccion(Long idDireccion, Long idUsuario) {
-        if (idDireccion == null || idDireccion <= 0) {
-            throw new IllegalArgumentException("idDireccion es obligatorio");
-        }
-        DireccionDespacho direccion = direccionService.buscarPorId(idDireccion)
-                .orElseThrow(() -> new IllegalArgumentException("Dirección no existe"));
-        if (!idUsuario.equals(direccion.getIdUsuario())) {
-            throw new IllegalArgumentException("La dirección no pertenece al usuario");
-        }
-
-    }
-  
 }

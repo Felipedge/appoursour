@@ -1,15 +1,19 @@
 package cl.oursour.ms_pago.controller;
 
-import cl.oursour.ms_pago.model.Pago;
+import cl.oursour.ms_pago.dto.PagoRequest;
+import cl.oursour.ms_pago.dto.PagoResponse;
+import cl.oursour.ms_pago.security.Autorizacion;
 import cl.oursour.ms_pago.service.PagoService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/pagos")
+@RequestMapping("/api/pagos")
 public class PagoController {
 
     private final PagoService service;
@@ -19,27 +23,30 @@ public class PagoController {
     }
 
     @GetMapping
-    public List<Pago> listarPagos() {
-        return service.listarPagos();
+    public List<PagoResponse> listarPagos(@RequestHeader(Autorizacion.HEADER_USUARIO) Long userId,
+                                          @RequestHeader(Autorizacion.HEADER_ROL) String rol) {
+        return service.listarPagos(userId, rol);
     }
 
     @GetMapping("/{id}")
-    public Optional<Pago> buscarPorId(@PathVariable Long id) {
-        return service.buscarPorId(id);
+    public PagoResponse buscarPorId(@RequestHeader(Autorizacion.HEADER_USUARIO) Long userId,
+                                    @RequestHeader(Autorizacion.HEADER_ROL) String rol,
+                                    @PathVariable Long id) {
+        return service.buscarPorId(id, userId, rol);
     }
 
-
     @PostMapping
-    public ResponseEntity<?> procesarPago(@RequestBody Pago pago) {
-        try {
-            return ResponseEntity.ok(service.procesarPago(pago));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<PagoResponse> procesarPago(@RequestHeader(Autorizacion.HEADER_USUARIO) Long userId,
+                                                     @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+                                                     @Valid @RequestBody PagoRequest req) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.procesarPago(req, userId, authorization));
     }
 
     @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminar(@RequestHeader(Autorizacion.HEADER_ROL) String rol,
+                                         @PathVariable Long id) {
+        Autorizacion.exigirAdmin(rol);
         service.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 }

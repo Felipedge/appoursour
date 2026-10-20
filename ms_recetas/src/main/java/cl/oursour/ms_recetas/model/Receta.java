@@ -18,13 +18,14 @@ import jakarta.persistence.Table;
 public class Receta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idReceta;
+    private Long idReceta;
 
     private String titulo;
     private String tipo;
     private String pasosPreparacion;
 
-    private long idProducto;
+
+    private Long idProducto;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "receta", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -33,11 +34,11 @@ public class Receta {
     public Receta() {
     }
 
-    public long getIdReceta() {
+    public Long getIdReceta() {
         return idReceta;
     }
 
-    public void setIdReceta(long idReceta) {
+    public void setIdReceta(Long idReceta) {
         this.idReceta = idReceta;
     }
 
@@ -65,11 +66,11 @@ public class Receta {
         this.pasosPreparacion = pasosPreparacion;
     }
 
-    public long getIdProducto() {
+    public Long getIdProducto() {
         return idProducto;
     }
 
-    public void setIdProducto(long idProducto) {
+    public void setIdProducto(Long idProducto) {
         this.idProducto = idProducto;
     }
 

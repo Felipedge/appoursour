@@ -1,23 +1,19 @@
 package cl.oursour.ms_pedido.controller;
 
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import cl.oursour.ms_pedido.model.DireccionDespacho;
+import cl.oursour.ms_pedido.dto.DireccionRequest;
+import cl.oursour.ms_pedido.dto.DireccionResponse;
+import cl.oursour.ms_pedido.security.Autorizacion;
 import cl.oursour.ms_pedido.service.DireccionService;
+import jakarta.validation.Valid;
 
-@RestController 
-@RequestMapping("/direccion")
+@RestController
+@RequestMapping("/api/direcciones")
 public class DireccionController {
     private final DireccionService service;
 
@@ -26,28 +22,38 @@ public class DireccionController {
     }
 
     @GetMapping
-    public List<DireccionDespacho> listarTodas() {
-        return service.listarTodas();
+    public List<DireccionResponse> listar(@RequestHeader(Autorizacion.HEADER_USUARIO) Long userId,
+                                          @RequestHeader(Autorizacion.HEADER_ROL) String rol) {
+        return service.listar(userId, rol);
     }
 
     @GetMapping("/{id}")
-    public Optional<DireccionDespacho> buscarPorId(@PathVariable Long id) {
-        return service.buscarPorId(id);
+    public DireccionResponse buscarPorId(@RequestHeader(Autorizacion.HEADER_USUARIO) Long userId,
+                                         @RequestHeader(Autorizacion.HEADER_ROL) String rol,
+                                         @PathVariable Long id) {
+        return service.buscarPorId(id, userId, rol);
     }
 
     @PostMapping
-    public DireccionDespacho guardar(@RequestBody DireccionDespacho direccion) {
-        return service.guardar(direccion);
+    public ResponseEntity<DireccionResponse> guardar(@RequestHeader(Autorizacion.HEADER_USUARIO) Long userId,
+                                                     @Valid @RequestBody DireccionRequest req) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.guardar(userId, req));
     }
 
     @PutMapping("/{id}")
-    public DireccionDespacho actualizar(@PathVariable Long id, @RequestBody DireccionDespacho direccion) {
-        return service.actualizar(id, direccion);
+    public DireccionResponse actualizar(@RequestHeader(Autorizacion.HEADER_USUARIO) Long userId,
+                                        @RequestHeader(Autorizacion.HEADER_ROL) String rol,
+                                        @PathVariable Long id,
+                                        @Valid @RequestBody DireccionRequest req) {
+        return service.actualizar(id, req, userId, rol);
     }
 
     @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
-        service.eliminar(id);
+    public ResponseEntity<Void> eliminar(@RequestHeader(Autorizacion.HEADER_USUARIO) Long userId,
+                                         @RequestHeader(Autorizacion.HEADER_ROL) String rol,
+                                         @PathVariable Long id) {
+        service.eliminar(id, userId, rol);
+        return ResponseEntity.noContent().build();
     }
 
 }

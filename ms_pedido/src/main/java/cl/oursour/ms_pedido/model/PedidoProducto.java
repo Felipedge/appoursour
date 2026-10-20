@@ -1,6 +1,6 @@
 package cl.oursour.ms_pedido.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import java.math.BigDecimal;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -19,15 +19,14 @@ public class PedidoProducto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idDetalle;
 
-    // Producto del catálogo: vive en MS-Producto, aquí solo se guarda el id
+    
     private Long idProducto;
 
     private int cantidad;
 
-    // Precio del producto al momento de la compra
-    private int precioUnitario;
+    
+    private BigDecimal precioUnitario;
 
-    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_pedido")
     private Pedido pedido;
@@ -35,7 +34,7 @@ public class PedidoProducto {
     public PedidoProducto() {
     }
 
-     public Long getIdDetalle() {
+    public Long getIdDetalle() {
         return idDetalle;
     }
 
@@ -59,11 +58,11 @@ public class PedidoProducto {
         this.cantidad = cantidad;
     }
 
-    public int getPrecioUnitario() {
+    public BigDecimal getPrecioUnitario() {
         return precioUnitario;
     }
 
-    public void setPrecioUnitario(int precioUnitario) {
+    public void setPrecioUnitario(BigDecimal precioUnitario) {
         this.precioUnitario = precioUnitario;
     }
 

@@ -6,12 +6,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-@Entity 
+@Entity
 @Table(name = "direccion_despacho")
 public class DireccionDespacho {
-    @Id 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idUsuario;
+    private Long idDireccion;
+
+    
+    private Long idUsuario;
 
     private String calle;
     private String numero;
@@ -22,11 +25,19 @@ public class DireccionDespacho {
     public DireccionDespacho() {
     }
 
-    public long getIdUsuario() {
+    public Long getIdDireccion() {
+        return idDireccion;
+    }
+
+    public void setIdDireccion(Long idDireccion) {
+        this.idDireccion = idDireccion;
+    }
+
+    public Long getIdUsuario() {
         return idUsuario;
     }
 
-    public void setIdUsuario(long idUsuario) {
+    public void setIdUsuario(Long idUsuario) {
         this.idUsuario = idUsuario;
     }
 
@@ -69,5 +80,5 @@ public class DireccionDespacho {
     public void setReferencia(String referencia) {
         this.referencia = referencia;
     }
-    
+
 }
