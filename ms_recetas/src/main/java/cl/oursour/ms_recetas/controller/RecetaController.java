@@ -1,6 +1,7 @@
 package cl.oursour.ms_recetas.controller;
 
 import cl.oursour.ms_recetas.dto.DetalleRequest;
+import cl.oursour.ms_recetas.dto.RecetaDetalleResponse;
 import cl.oursour.ms_recetas.dto.RecetaRequest;
 import cl.oursour.ms_recetas.dto.RecetaResponse;
 import cl.oursour.ms_recetas.dto.RecomendacionRequest;
@@ -30,14 +31,16 @@ public class RecetaController {
     }
 
     @GetMapping("/{id}")
-    public RecetaResponse buscarPorId(@PathVariable Long id) {
-        return service.buscarPorId(id);
+    public RecetaDetalleResponse buscarPorId(@RequestHeader(Autorizacion.HEADER_USUARIO) Long userId,
+                                             @PathVariable Long id) {
+        return service.buscarPorId(id, userId);
     }
 
-    
+
     @PostMapping("/recomendar")
-    public List<RecomendacionResponse> recomendar(@Valid @RequestBody RecomendacionRequest req) {
-        return service.recomendar(req.ingredientes());
+    public List<RecomendacionResponse> recomendar(@RequestHeader(Autorizacion.HEADER_USUARIO) Long userId,
+                                                  @Valid @RequestBody RecomendacionRequest req) {
+        return service.recomendar(req.ingredientes(), userId);
     }
 
     @PostMapping

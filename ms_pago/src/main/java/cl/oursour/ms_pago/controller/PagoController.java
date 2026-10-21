@@ -23,16 +23,16 @@ public class PagoController {
     }
 
     @GetMapping
-    public List<PagoResponse> listarPagos(@RequestHeader(Autorizacion.HEADER_USUARIO) Long userId,
-                                          @RequestHeader(Autorizacion.HEADER_ROL) String rol) {
-        return service.listarPagos(userId, rol);
+    public List<PagoResponse> listarPagos(@RequestHeader(Autorizacion.HEADER_ROL) String rol,
+                                          @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) {
+        return service.listarPagos(rol, authorization);
     }
 
     @GetMapping("/{id}")
-    public PagoResponse buscarPorId(@RequestHeader(Autorizacion.HEADER_USUARIO) Long userId,
-                                    @RequestHeader(Autorizacion.HEADER_ROL) String rol,
+    public PagoResponse buscarPorId(@RequestHeader(Autorizacion.HEADER_ROL) String rol,
+                                    @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
                                     @PathVariable Long id) {
-        return service.buscarPorId(id, userId, rol);
+        return service.buscarPorId(id, rol, authorization);
     }
 
     @PostMapping

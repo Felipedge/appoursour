@@ -1,5 +1,6 @@
 package cl.oursour.ms_recetas.controller;
 
+import cl.oursour.ms_recetas.dto.IngredienteFrecuenteResponse;
 import cl.oursour.ms_recetas.dto.IngredienteRequest;
 import cl.oursour.ms_recetas.dto.IngredienteResponse;
 import cl.oursour.ms_recetas.security.Autorizacion;
@@ -21,19 +22,22 @@ public class IngredienteController {
         this.service = service;
     }
 
+    
     @GetMapping
-    public List<IngredienteResponse> listarTodos() {
-        return service.listarTodos();
+    public List<IngredienteResponse> listar(@RequestParam(required = false) String categoria) {
+        return categoria == null || categoria.isBlank()
+                ? service.listarTodos()
+                : service.buscarPorCategoria(categoria);
+    }
+
+    @GetMapping("/frecuentes")
+    public List<IngredienteFrecuenteResponse> frecuentes(@RequestParam(defaultValue = "10") int limite) {
+        return service.frecuentes(limite);
     }
 
     @GetMapping("/{id}")
     public IngredienteResponse buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id);
-    }
-
-    @GetMapping("/categoria/{categoria}")
-    public List<IngredienteResponse> buscarPorCategoria(@PathVariable String categoria) {
-        return service.buscarPorCategoria(categoria);
     }
 
     @PostMapping

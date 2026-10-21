@@ -2,31 +2,28 @@ package cl.oursour.ms_pedido.model;
 
 import java.math.BigDecimal;
 
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
+
 
 @Entity
 @Table(name = "pedido_producto")
 public class PedidoProducto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idDetalle;
-
-    
-    private Long idProducto;
+    @EmbeddedId
+    private PedidoProductoId id = new PedidoProductoId();
 
     private int cantidad;
 
-    
+   
     private BigDecimal precioUnitario;
 
+    @MapsId("idPedido")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_pedido")
     private Pedido pedido;
@@ -34,20 +31,20 @@ public class PedidoProducto {
     public PedidoProducto() {
     }
 
-    public Long getIdDetalle() {
-        return idDetalle;
+    public PedidoProductoId getId() {
+        return id;
     }
 
-    public void setIdDetalle(Long idDetalle) {
-        this.idDetalle = idDetalle;
+    public void setId(PedidoProductoId id) {
+        this.id = id;
     }
 
     public Long getIdProducto() {
-        return idProducto;
+        return id.getIdProducto();
     }
 
     public void setIdProducto(Long idProducto) {
-        this.idProducto = idProducto;
+        id.setIdProducto(idProducto);
     }
 
     public int getCantidad() {
